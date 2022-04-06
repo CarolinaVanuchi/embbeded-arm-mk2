@@ -1,0 +1,10 @@
+menu "Sensors"
+
+    config GPIO_MICRO_SERVO
+        int "Micro servo digital input"
+        range 1 39
+        default 26
+        help
+            Micro servo digital input.
+       
+endmenu
