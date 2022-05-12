@@ -10,7 +10,4 @@ void app_main(void)
 {
     printf("Starting...");
     set_config_final_actuator();
-    open_final_actuator();
-    close_final_actuator();
-  
 }

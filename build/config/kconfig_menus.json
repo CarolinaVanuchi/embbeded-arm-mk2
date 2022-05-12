@@ -2021,6 +2021,19 @@
                 ],
                 "title": "Micro servo digital input",
                 "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Nema base digital input.",
+                "id": "GPIO_NEMA_BASE",
+                "name": "GPIO_NEMA_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Nema base digital input",
+                "type": "int"
             }
         ],
         "depends_on": null,

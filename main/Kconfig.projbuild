@@ -3,8 +3,15 @@ menu "Sensors"
     config GPIO_MICRO_SERVO
         int "Micro servo digital input"
         range 1 39
-        default 26
+        default 18
         help
             Micro servo digital input.
+
+    config GPIO_NEMA_BASE
+        int "Nema base digital input"
+        range 1 39
+        default 6
+        help
+            Nema base digital input.
        
 endmenu
