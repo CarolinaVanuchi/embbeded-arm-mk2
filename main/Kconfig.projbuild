@@ -6,6 +6,20 @@ menu "Sensors"
         default 18
         help
             Micro servo digital input.
+        
+    config GPIO_RXD
+        int "RXD PORT"
+        range 1 39
+        default 3
+        help
+            RXD port.
+                    
+    config GPIO_TXD
+        int "TXD PORT"
+        range 1 39
+        default 1
+        help
+            TXD port.
 
     config GPIO_NEMA_BASE
         int "Nema base digital input"

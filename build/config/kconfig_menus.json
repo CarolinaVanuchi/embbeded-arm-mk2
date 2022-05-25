@@ -2025,6 +2025,32 @@
             {
                 "children": [],
                 "depends_on": null,
+                "help": "RXD port.",
+                "id": "GPIO_RXD",
+                "name": "GPIO_RXD",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "RXD PORT",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "TXD port.",
+                "id": "GPIO_TXD",
+                "name": "GPIO_TXD",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "TXD PORT",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
                 "help": "Nema base digital input.",
                 "id": "GPIO_NEMA_BASE",
                 "name": "GPIO_NEMA_BASE",

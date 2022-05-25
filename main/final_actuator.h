@@ -2,6 +2,7 @@
 #include "freertos/task.h"
 #include "driver/mcpwm.h"
 #include <sys/param.h>
+#include "sdkconfig.h"
 
 #ifndef _FINAL_ACTUATOR_
 #define _FINAL_ACTUATOR_
