@@ -28,7 +28,6 @@ int sendData(const char* logName, const char* data)
 {
     const int len = strlen(data);
     const int txBytes = uart_write_bytes(UART_NUM_1, data, len);
-    ESP_LOGI(logName, "Wrote %d bytes", txBytes);
     return txBytes;
 }
 
@@ -38,21 +37,28 @@ static void tx_task(void *arg)
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     while (1) {
         sendData(TX_TASK_TAG, "Enviando");
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
     }
 }
 
 static void rx_task(void *arg)
 {
-    static const char *RX_TASK_TAG = "RX_TASK_TESTEEEEEEE";
+    static const char *RX_TASK_TAG = "RX_TASK";
     esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
+    
     uint8_t* data = (uint8_t*) malloc(RX_BUF_SIZE+1);
     while (1) {
         const int rxBytes = uart_read_bytes(UART_NUM_1, data, RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
+        
         if (rxBytes > 0) {
-            data[rxBytes] = 0;
-            ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
-            ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
+
+            char *json = (char*)calloc(rxBytes+1, sizeof(char));
+            memcpy(json, data, rxBytes);
+            json[rxBytes] = '\0';
+            
+            uart_write_bytes(UART_NUM_1, json, rxBytes+1);
+
+            free(json);
         }
     }
     free(data);
