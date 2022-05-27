@@ -6,6 +6,7 @@
 #include "string.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
+#include "theta_json.h"
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -34,7 +35,6 @@ int sendData(const char* logName, const char* data)
 static void tx_task(void *arg)
 {
     static const char *TX_TASK_TAG = "TX_TASK";
-    esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     while (1) {
         sendData(TX_TASK_TAG, "Enviando");
         vTaskDelay(10000 / portTICK_PERIOD_MS);
@@ -43,20 +43,17 @@ static void tx_task(void *arg)
 
 static void rx_task(void *arg)
 {
-    static const char *RX_TASK_TAG = "RX_TASK";
-    esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
-    
+ 
     uint8_t* data = (uint8_t*) malloc(RX_BUF_SIZE+1);
     while (1) {
         const int rxBytes = uart_read_bytes(UART_NUM_1, data, RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
         
         if (rxBytes > 0) {
-
             char *json = (char*)calloc(rxBytes+1, sizeof(char));
             memcpy(json, data, rxBytes);
             json[rxBytes] = '\0';
             
-            uart_write_bytes(UART_NUM_1, json, rxBytes+1);
+            take_json(json);
 
             free(json);
         }

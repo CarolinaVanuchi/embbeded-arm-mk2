@@ -5,6 +5,10 @@
         "sdkconfig.h": "c",
         "esp_log.h": "c",
         "*.inc": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "theta_json.h": "c",
+        "final_actuator.h": "c",
+        "robot.h": "c",
+        "uart.h": "c"
     }
 }
