@@ -10,14 +10,14 @@ menu "Sensors"
     config GPIO_RXD
         int "RXD PORT"
         range 1 39
-        default 3
+        default 16
         help
             RXD port.
                     
     config GPIO_TXD
         int "TXD PORT"
         range 1 39
-        default 1
+        default 17
         help
             TXD port.
 
