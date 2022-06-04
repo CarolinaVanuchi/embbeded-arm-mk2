@@ -2077,27 +2077,14 @@
             {
                 "children": [],
                 "depends_on": null,
-                "help": "Nema puses base digital input.",
-                "id": "GPIO_NEMA_MOTOR_BASE",
-                "name": "GPIO_NEMA_MOTOR_BASE",
+                "help": "Fim de curso para a base.",
+                "id": "GPIO_END_MOTOR_ESQUERDO",
+                "name": "GPIO_END_MOTOR_ESQUERDO",
                 "range": [
                     1,
                     39
                 ],
-                "title": "Nema puses base digital input",
-                "type": "int"
-            },
-            {
-                "children": [],
-                "depends_on": null,
-                "help": "Nema direction base digital input.",
-                "id": "GPIO_DIRECTION_MOTOR_BASE",
-                "name": "GPIO_DIRECTION_MOTOR_BASE",
-                "range": [
-                    1,
-                    39
-                ],
-                "title": "Nema direction base digital input",
+                "title": "Fim de curso para o elo esquerdo",
                 "type": "int"
             }
         ],

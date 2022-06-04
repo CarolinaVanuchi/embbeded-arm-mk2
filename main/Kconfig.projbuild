@@ -35,18 +35,10 @@ menu "Entradas e saidas"
         help
             Fim de curso para a base.
 
-    config GPIO_NEMA_MOTOR_BASE
-        int "Nema puses base digital input"
+    config GPIO_END_MOTOR_ESQUERDO
+        int "Fim de curso para o elo esquerdo"
         range 1 39
-        default 32
+        default 13
         help
-            Nema puses base digital input.
-
-    config GPIO_DIRECTION_MOTOR_BASE
-        int "Nema direction base digital input"
-        range 1 39
-        default 33
-        help
-            Nema direction base digital input.
-
+            Fim de curso para a base.
 endmenu

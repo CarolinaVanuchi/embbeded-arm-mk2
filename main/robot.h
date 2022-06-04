@@ -14,38 +14,33 @@ typedef struct {
     double theta_3;
 } List_thetas;
 
-static xQueueHandle gpio_base_end_base  = NULL;
+static xQueueHandle gpio_end_motor_esquerdo  = NULL;
 static xQueueHandle thetas              = NULL;
 
 static void IRAM_ATTR gpio_isr_handler(void *arg)
 {
     uint32_t gpio_sensor = (uint32_t) arg;
-    xQueueSendFromISR(gpio_base_end_base, &gpio_sensor, NULL);
+    xQueueSendFromISR(gpio_end_motor_esquerdo, &gpio_sensor, NULL);
 }
 
 
-void init_motor1(void)
+void init_motor_esquerdo(void)
 {
-    gpio_reset_pin(CONFIG_GPIO_NEMA_MOTOR_BASE);
-    gpio_set_direction(CONFIG_GPIO_NEMA_MOTOR_BASE, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_DIRECTION_MOTOR_BASE);
-    gpio_set_direction(CONFIG_GPIO_DIRECTION_MOTOR_BASE, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_END_BASE);
-    gpio_set_direction(CONFIG_GPIO_END_BASE, GPIO_MODE_INPUT);
+  
+    gpio_reset_pin(CONFIG_GPIO_END_MOTOR_ESQUERDO);
+    gpio_set_direction(CONFIG_GPIO_END_MOTOR_ESQUERDO, GPIO_MODE_INPUT);
 
     gpio_config_t config_end_base = {
         .intr_type      = GPIO_PIN_INTR_POSEDGE,
-        .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_BASE),
+        .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_MOTOR_ESQUERDO),
         .mode           = GPIO_MODE_INPUT,
         .pull_down_en   = 1,
     };
 
     gpio_config(&config_end_base);
 
-    gpio_base_end_base = xQueueCreate(1, sizeof(uint32_t));
-    gpio_isr_handler_add(CONFIG_GPIO_END_BASE, gpio_isr_handler, (void *)CONFIG_GPIO_END_BASE);
+    gpio_end_motor_esquerdo = xQueueCreate(1, sizeof(uint32_t));
+    gpio_isr_handler_add(CONFIG_GPIO_END_MOTOR_ESQUERDO, gpio_isr_handler, (void *)CONFIG_GPIO_END_MOTOR_ESQUERDO);
 
     thetas = xQueueCreate(3, sizeof(List_thetas));
 }
@@ -53,7 +48,7 @@ void init_motor1(void)
 static void init_robot(void)
 {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-    init_motor1();
+    init_motor_esquerdo();
 }
 
 static void task_robot(void *arg) {
@@ -69,8 +64,8 @@ static void task_robot(void *arg) {
             ESP_LOGI("angles", "%lf...", itens.theta_3);
         }
        
-        if (xQueueReceive(gpio_base_end_base, &gpio_sensor, 100)) {
-           ESP_LOGI("isr", "Working...");
+        if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor, 100)) {
+           ESP_LOGI("isr", "Fim de curso motor 2...");
         }
      
     }
