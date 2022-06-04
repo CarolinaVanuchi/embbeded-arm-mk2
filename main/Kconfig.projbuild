@@ -1,11 +1,4 @@
-menu "Sensors"
-
-    config GPIO_MICRO_SERVO
-        int "Micro servo digital input"
-        range 1 39
-        default 18
-        help
-            Micro servo digital input.
+menu "Entradas e saidas"
         
     config GPIO_RXD
         int "RXD PORT"
@@ -21,11 +14,39 @@ menu "Sensors"
         help
             TXD port.
 
-    config GPIO_NEMA_BASE
-        int "Nema base digital input"
+    config GPIO_LED
+        int "LED do robo"
         range 1 39
-        default 6
+        default 2
         help
-            Nema base digital input.
-       
+            LED do robo.
+     
+    config GPIO_MICRO_SERVO
+        int "Micro servo digital input"
+        range 1 39
+        default 18
+        help
+            Micro servo digital input.
+
+    config GPIO_END_BASE
+        int "Fim de curso para a base digital input"
+        range 1 39
+        default 13
+        help
+            Fim de curso para a base.
+
+    config GPIO_NEMA_MOTOR_BASE
+        int "Nema puses base digital input"
+        range 1 39
+        default 32
+        help
+            Nema puses base digital input.
+
+    config GPIO_DIRECTION_MOTOR_BASE
+        int "Nema direction base digital input"
+        range 1 39
+        default 33
+        help
+            Nema direction base digital input.
+
 endmenu

@@ -2012,19 +2012,6 @@
             {
                 "children": [],
                 "depends_on": null,
-                "help": "Micro servo digital input.",
-                "id": "GPIO_MICRO_SERVO",
-                "name": "GPIO_MICRO_SERVO",
-                "range": [
-                    1,
-                    39
-                ],
-                "title": "Micro servo digital input",
-                "type": "int"
-            },
-            {
-                "children": [],
-                "depends_on": null,
                 "help": "RXD port.",
                 "id": "GPIO_RXD",
                 "name": "GPIO_RXD",
@@ -2051,20 +2038,72 @@
             {
                 "children": [],
                 "depends_on": null,
-                "help": "Nema base digital input.",
-                "id": "GPIO_NEMA_BASE",
-                "name": "GPIO_NEMA_BASE",
+                "help": "LED do robo.",
+                "id": "GPIO_LED",
+                "name": "GPIO_LED",
                 "range": [
                     1,
                     39
                 ],
-                "title": "Nema base digital input",
+                "title": "LED do robo",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Fim de curso para a base.",
+                "id": "GPIO_END_BASE",
+                "name": "GPIO_END_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Fim de curso para a base digital input",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Micro servo digital input.",
+                "id": "GPIO_MICRO_SERVO",
+                "name": "GPIO_MICRO_SERVO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Micro servo digital input",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Nema puses base digital input.",
+                "id": "GPIO_NEMA_MOTOR_BASE",
+                "name": "GPIO_NEMA_MOTOR_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Nema puses base digital input",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Nema direction base digital input.",
+                "id": "GPIO_DIRECTION_MOTOR_BASE",
+                "name": "GPIO_DIRECTION_MOTOR_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Nema direction base digital input",
                 "type": "int"
             }
         ],
         "depends_on": null,
-        "id": "sensors",
-        "title": "Sensors",
+        "id": "entradas-e-saidas",
+        "title": "Entradas e saidas",
         "type": "menu"
     },
     {

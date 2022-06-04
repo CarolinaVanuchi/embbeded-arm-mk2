@@ -3,17 +3,19 @@
 #include "esp_log.h"
 #include "driver/mcpwm.h"
 #include <sys/param.h>
-#include "final_actuator.h"
+
 #include "uart.h"
+#include "robot.h"
 
 void app_main(void)
 {
-         
-    printf("Starting...");
-    
-    set_config_final_actuator();
-    init_uart();
-    xTaskCreate(rx_task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
-    xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-}
 
+    printf("Starting...");
+
+    init_uart();
+    init_robot();
+
+    xTaskCreate(rx_task, "uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
+    xTaskCreate(task_robot, "controller_task_robot", 1024 * 2, NULL, configMAX_PRIORITIES - 1, NULL);
+    xTaskCreate(tx_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
+}

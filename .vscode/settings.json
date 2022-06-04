@@ -9,6 +9,7 @@
         "theta_json.h": "c",
         "final_actuator.h": "c",
         "robot.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "cjson.h": "c"
     }
 }

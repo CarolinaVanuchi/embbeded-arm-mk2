@@ -1,11 +1,11 @@
+#ifndef _FINAL_ACTUATOR_
+#define _FINAL_ACTUATOR_
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/mcpwm.h"
 #include <sys/param.h>
 #include "sdkconfig.h"
-
-#ifndef _FINAL_ACTUATOR_
-#define _FINAL_ACTUATOR_
 
 #define SERVO_MIN_PULSEWIDTH_US (1000)
 #define SERVO_MAX_PULSEWIDTH_US (2000)
@@ -18,7 +18,7 @@ static inline uint32_t convert_servo_angle_to_duty_us(int angle)
     return (angle + SERVO_MAX_DEGREE) * (SERVO_MAX_PULSEWIDTH_US - SERVO_MIN_PULSEWIDTH_US) / (2 * SERVO_MAX_DEGREE) + SERVO_MIN_PULSEWIDTH_US;
 }
 
-void set_config_final_actuator()
+void init_final_actuator()
 {
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MICRO_SERVO); 
 
