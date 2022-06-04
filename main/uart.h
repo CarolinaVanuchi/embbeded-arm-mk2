@@ -10,7 +10,6 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "theta_json.h"
-#include "regex.h"
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -42,9 +41,9 @@ static void tx_task(void *arg)
     static const char *TX_TASK_TAG = "TX_TASK";
     while (1)
     {
-        printf("_TX_");
+        ESP_LOGI("TX", "tx_task");
         sendData(TX_TASK_TAG, "Enviando");
-        vTaskDelay(50000 / portTICK_PERIOD_MS);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -52,29 +51,20 @@ static void rx_task(void *arg)
 {
 
     uint8_t *data = (uint8_t *)malloc(RX_BUF_SIZE + 1);
-    printf("SOCOROO");
+
     while (1)
     {
-        const int rxBytes = uart_read_bytes(UART_NUM_2, data, RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
-        
+        const int rxBytes = uart_read_bytes(UART_NUM_2, data, RX_BUF_SIZE, 500 / portTICK_PERIOD_MS);
+
         if (rxBytes > 0)
         {
-            printf("_RX_");
-            regex_t validation;
-            int ansewer;
-
+            ESP_LOGI("RX", "rx_task");
             char *json = (char *)calloc(rxBytes + 1, sizeof(char));
             printf(json);
             memcpy(json, data, rxBytes);
             json[rxBytes] = '\0';
-            validation.re_magic = 0;
-            ansewer = regcomp(&validation, "{(.|\n)+\}", 0);
-
-            if (!ansewer)
-                take_json(json);
-
+            take_json(json);
             free(json);
-            regfree(&validation);
         }
     }
     free(data);

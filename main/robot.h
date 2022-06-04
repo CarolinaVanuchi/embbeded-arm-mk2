@@ -37,14 +37,14 @@ void init_motor1(void)
 
     gpio_config_t config_end_base = {
         .intr_type      = GPIO_PIN_INTR_POSEDGE,
-        .pin_bit_mask   = CONFIG_GPIO_END_BASE,
+        .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_BASE),
         .mode           = GPIO_MODE_INPUT,
         .pull_down_en   = 1,
     };
 
     gpio_config(&config_end_base);
 
-    gpio_base_end_base = xQueueCreate(10, sizeof(uint32_t));
+    gpio_base_end_base = xQueueCreate(1, sizeof(uint32_t));
     gpio_isr_handler_add(CONFIG_GPIO_END_BASE, gpio_isr_handler, (void *)CONFIG_GPIO_END_BASE);
 
     thetas = xQueueCreate(3, sizeof(List_thetas));
@@ -58,21 +58,20 @@ static void init_robot(void)
 
 static void task_robot(void *arg) {
    
-    uint32_t gpio_sensor = (uint32_t) arg;
+    uint32_t gpio_sensor;
     List_thetas itens;
     while (1)
     {
        
-       if (xQueueReceive(thetas, &itens, 100)) {
-            printf("_ROBOT_");
-            printf("%lf...", itens.theta_1);
-            printf("%lf...", itens.theta_2);
-            printf("%lf...", itens.theta_3);
-       }
+        if (xQueueReceive(thetas, &itens, 100)) {
+            ESP_LOGI("angles", "%lf...", itens.theta_1);
+            ESP_LOGI("angles", "%lf...", itens.theta_2);
+            ESP_LOGI("angles", "%lf...", itens.theta_3);
+        }
        
-       if (xQueueReceive(gpio_base_end_base, &gpio_sensor, 2000)) {
-           printf("Working...");
-       }
+        if (xQueueReceive(gpio_base_end_base, &gpio_sensor, 100)) {
+           ESP_LOGI("isr", "Working...");
+        }
      
     }
     

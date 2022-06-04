@@ -2051,19 +2051,6 @@
             {
                 "children": [],
                 "depends_on": null,
-                "help": "Fim de curso para a base.",
-                "id": "GPIO_END_BASE",
-                "name": "GPIO_END_BASE",
-                "range": [
-                    1,
-                    39
-                ],
-                "title": "Fim de curso para a base digital input",
-                "type": "int"
-            },
-            {
-                "children": [],
-                "depends_on": null,
                 "help": "Micro servo digital input.",
                 "id": "GPIO_MICRO_SERVO",
                 "name": "GPIO_MICRO_SERVO",
@@ -2072,6 +2059,19 @@
                     39
                 ],
                 "title": "Micro servo digital input",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Fim de curso para a base.",
+                "id": "GPIO_END_BASE",
+                "name": "GPIO_END_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Fim de curso para a base digital input",
                 "type": "int"
             },
             {
