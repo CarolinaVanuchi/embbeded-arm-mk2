@@ -31,7 +31,7 @@ menu "Entradas e saidas"
     config GPIO_END_BASE
         int "Fim de curso para a base digital input"
         range 1 39
-        default 13
+        default 12
         help
             Fim de curso para a base.
 
@@ -40,5 +40,12 @@ menu "Entradas e saidas"
         range 1 39
         default 13
         help
-            Fim de curso para a base.
+            Fim de curso para o elo esquerdo.
+
+    config GPIO_END_MOTOR_DIREITO
+        int "Fim de curso para o elo direito"
+        range 1 39
+        default 14
+        help
+            Fim de curso para o elo direito.
 endmenu
