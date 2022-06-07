@@ -43,10 +43,10 @@ void init_motor_esquerdo(void)
     gpio_set_direction(CONFIG_GPIO_END_MOTOR_ESQUERDO, GPIO_MODE_INPUT);
 
     gpio_config_t config_end_esquerdo = {
-        .intr_type      = GPIO_PIN_INTR_POSEDGE,
+        .intr_type      = GPIO_PIN_INTR_NEGEDGE,
         .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_MOTOR_ESQUERDO),
         .mode           = GPIO_MODE_INPUT,
-        .pull_down_en   = 1,
+        .pull_up_en     = 1,
     };
 
     gpio_config(&config_end_esquerdo);
@@ -61,10 +61,10 @@ void init_motor_direito(void)
     gpio_set_direction(CONFIG_GPIO_END_MOTOR_DIREITO, GPIO_MODE_INPUT);
 
     gpio_config_t config_end_direito = {
-        .intr_type      = GPIO_PIN_INTR_NEGEDGE,
+        .intr_type      = GPIO_PIN_INTR_POSEDGE,
         .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_MOTOR_DIREITO),
         .mode           = GPIO_MODE_INPUT,
-        .pull_down_en   = 1,
+        .pull_up_en     = 1,
     };
 
     gpio_config(&config_end_direito);
@@ -83,7 +83,7 @@ static void init_robot(void)
 }
 
 static void task_robot(void *arg) {
-    uint8_t input_end_base_sensor;
+    // uint8_t input_end_base_sensor;
     uint32_t gpio_sensor_esquerdo;
     uint32_t gpio_sensor_direito;
     List_thetas itens;
@@ -97,11 +97,11 @@ static void task_robot(void *arg) {
             ESP_LOGI("angles", "%lf...", itens.theta_3);
         }
        
-        if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_esquerdo, 100)) {
+        if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_esquerdo, 300)) {
            ESP_LOGI("ISR", "Fim de curso motor 2...");
         }
 
-        if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_direito, 50)) {
+        if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_direito, 300)) {
            ESP_LOGI("ISR", "Fim de curso motor 3...");
         }
    

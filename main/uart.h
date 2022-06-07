@@ -60,7 +60,6 @@ static void rx_task(void *arg)
         {
             ESP_LOGI("RX", "rx_task");
             char *json = (char *)calloc(rxBytes + 1, sizeof(char));
-            printf(json);
             memcpy(json, data, rxBytes);
             json[rxBytes] = '\0';
             take_json(json);
