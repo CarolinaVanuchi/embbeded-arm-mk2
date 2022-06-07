@@ -64,7 +64,7 @@ void init_motor_direito(void)
         .intr_type      = GPIO_PIN_INTR_NEGEDGE,
         .pin_bit_mask   = (1ULL<<CONFIG_GPIO_END_MOTOR_DIREITO),
         .mode           = GPIO_MODE_INPUT,
-        .pull_up_en     = 1,
+        .pull_down_en   = 1,
     };
 
     gpio_config(&config_end_direito);
@@ -101,19 +101,19 @@ static void task_robot(void *arg) {
            ESP_LOGI("ISR", "Fim de curso motor 2...");
         }
 
-        if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_direito, 300)) {
+        if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_direito, 50)) {
            ESP_LOGI("ISR", "Fim de curso motor 3...");
         }
    
-        input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
-        if (input_end_base_sensor == 1) {
-            ESP_LOGI("END", "END EM 1...");
-        }else  if (input_end_base_sensor == 0) {
-            ESP_LOGI("END", "END EM 0...");
+        // input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
+        // if (input_end_base_sensor == 1) {
+        //     ESP_LOGI("END", "END EM 1...");
+        // }else  if (input_end_base_sensor == 0) {
+        //     ESP_LOGI("END", "END EM 0...");
 
-        } else {
-            ESP_LOGI("END"," input_end_base_sensor %i", input_end_base_sensor);
-        }
+        // } else {
+        //     ESP_LOGI("END"," input_end_base_sensor %i", input_end_base_sensor);
+        // }
     }
     
 }
