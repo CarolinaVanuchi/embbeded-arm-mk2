@@ -48,4 +48,25 @@ menu "Entradas e saidas"
         default 14
         help
             Fim de curso para o elo direito.
+
+    config GPIO_MOTOR_BASE_ENABLE
+        int "Motor da base enable"
+        range 1 39
+        default 19
+        help
+            Motor da base enable.
+            
+    config GPIO_MOTOR_BASE
+        int "Motor da base"
+        range 1 39
+        default 15
+        help
+            Motor da base.
+
+    config GPIO_MOTOR_BASE_DIRECAO
+        int "Sentido do motor da base"
+        range 1 39
+        default 4
+        help
+            Sentido do motor da base.
 endmenu

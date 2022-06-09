@@ -2099,6 +2099,45 @@
                 ],
                 "title": "Fim de curso para o elo direito",
                 "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor da base enable.",
+                "id": "GPIO_MOTOR_BASE_ENABLE",
+                "name": "GPIO_MOTOR_BASE_ENABLE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor da base enable",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor da base.",
+                "id": "GPIO_MOTOR_BASE",
+                "name": "GPIO_MOTOR_BASE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor da base",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Sentido do motor da base.",
+                "id": "GPIO_MOTOR_BASE_DIRECAO",
+                "name": "GPIO_MOTOR_BASE_DIRECAO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Sentido do motor da base",
+                "type": "int"
             }
         ],
         "depends_on": null,
