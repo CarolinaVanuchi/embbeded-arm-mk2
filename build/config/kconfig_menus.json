@@ -2138,6 +2138,84 @@
                 ],
                 "title": "Sentido do motor da base",
                 "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor esquerdo enable.",
+                "id": "GPIO_MOTOR_ESQUERDO_ENABLE",
+                "name": "GPIO_MOTOR_ESQUERDO_ENABLE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor esquerdo enable",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor esquerdo.",
+                "id": "GPIO_MOTOR_ESQUERDO",
+                "name": "GPIO_MOTOR_ESQUERDO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor esquerdo",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Sentido do motor esquerdo.",
+                "id": "GPIO_MOTOR_ESQUERDO_DIRECAO",
+                "name": "GPIO_MOTOR_ESQUERDO_DIRECAO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Sentido do motor esquerdo",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor direito enable.",
+                "id": "GPIO_MOTOR_DIREITO_ENABLE",
+                "name": "GPIO_MOTOR_DIREITO_ENABLE",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor direito enable",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Motor direito.",
+                "id": "GPIO_MOTOR_DIREITO",
+                "name": "GPIO_MOTOR_DIREITO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Motor direito",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "Sentido do motor direito.",
+                "id": "GPIO_MOTOR_DIREITO_DIRECAO",
+                "name": "GPIO_MOTOR_DIREITO_DIRECAO",
+                "range": [
+                    1,
+                    39
+                ],
+                "title": "Sentido do motor direito",
+                "type": "int"
             }
         ],
         "depends_on": null,

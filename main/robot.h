@@ -44,6 +44,30 @@ void init_motor_base(void)
     gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
 }
 
+void init_motor_esquerdo(void)
+{
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO, GPIO_MODE_OUTPUT);
+}
+
+void init_motor_direito(void)
+{
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO_ENABLE);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
+}
+
 void init_end_left(void)
 {
     gpio_reset_pin(CONFIG_GPIO_END_MOTOR_ESQUERDO);
@@ -83,6 +107,8 @@ void init_end_right(void)
 static void init_robot(void)
 {
     init_motor_base();
+    init_motor_esquerdo();
+    init_motor_direito();
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     thetas = xQueueCreate(3, sizeof(List_thetas));
     gpio_end_motor_base = xQueueCreate(1, sizeof(uint8_t));
@@ -90,28 +116,39 @@ static void init_robot(void)
     init_end_right();
 }
 
-void move_base() {
+void move_motores()
+{
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 1);
+    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 1);
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO, 1);
     vTaskDelay(10 / portTICK_PERIOD_MS);
 
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO, 0);
     vTaskDelay(10 / portTICK_PERIOD_MS);
 }
+
 static void task_robot(void *arg)
 {
     uint32_t gpio_sensor_base;
     uint32_t gpio_sensor_left;
     uint32_t gpio_sensor_right;
     List_thetas itens;
-    
+
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
 
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, 0);
+    
+    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, 0);
+
     while (1)
     {
-        
-        move_base();
-       
+
+        move_motores();
 
         // if (xQueueReceive(thetas, &itens, 100))
         // {

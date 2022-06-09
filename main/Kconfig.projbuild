@@ -69,4 +69,48 @@ menu "Entradas e saidas"
         default 4
         help
             Sentido do motor da base.
+
+
+    config GPIO_MOTOR_ESQUERDO_ENABLE
+        int "Motor esquerdo enable"
+        range 1 39
+        default 32
+        help
+            Motor esquerdo enable.
+            
+    config GPIO_MOTOR_ESQUERDO
+        int "Motor esquerdo"
+        range 1 39
+        default 33
+        help
+            Motor esquerdo.
+
+    config GPIO_MOTOR_ESQUERDO_DIRECAO
+        int "Sentido do motor esquerdo"
+        range 1 39
+        default 25
+        help
+            Sentido do motor esquerdo.
+
+    config GPIO_MOTOR_DIREITO_ENABLE
+        int "Motor direito enable"
+        range 1 39
+        default 23
+        help
+            Motor direito enable.
+            
+    config GPIO_MOTOR_DIREITO
+        int "Motor direito"
+        range 1 39
+        default 21
+        help
+            Motor direito.
+
+    config GPIO_MOTOR_DIREITO_DIRECAO
+        int "Sentido do motor direito"
+        range 1 39
+        default 22
+        help
+            Sentido do motor direito.
+
 endmenu
