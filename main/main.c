@@ -12,7 +12,8 @@ void app_main(void)
 {
 
     printf("Starting...");
-
+    
+    init_end_base();
     init_robot();
     init_end_base();
     init_uart();
