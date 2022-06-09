@@ -23,8 +23,9 @@ static void task_end_base(void *arg)
         input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
         if (input_end_base_sensor == 0)
         {
-            xQueueSend(gpio_end_motor_base, 0, 100);
+            ESP_LOGI("END BASE", "%i", input_end_base_sensor);
         }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
 

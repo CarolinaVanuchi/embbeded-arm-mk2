@@ -31,7 +31,7 @@ menu "Entradas e saidas"
     config GPIO_END_BASE
         int "Fim de curso para a base digital input"
         range 1 39
-        default 12
+        default 27
         help
             Fim de curso para a base.
 
