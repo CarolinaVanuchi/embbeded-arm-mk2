@@ -32,42 +32,6 @@ static void IRAM_ATTR gpio_isr_handler_direito(void *arg)
     xQueueSendFromISR(gpio_end_motor_direito, &gpio_sensor, NULL);
 }
 
-void init_motor_base(void)
-{
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE_ENABLE);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_BASE_ENABLE, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE_DIRECAO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_BASE_DIRECAO, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
-}
-
-void init_motor_esquerdo(void)
-{
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO, GPIO_MODE_OUTPUT);
-}
-
-void init_motor_direito(void)
-{
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO_ENABLE);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
-}
-
 void init_end_left(void)
 {
     gpio_reset_pin(CONFIG_GPIO_END_MOTOR_ESQUERDO);
@@ -106,9 +70,6 @@ void init_end_right(void)
 
 static void init_robot(void)
 {
-    init_motor_base();
-    init_motor_esquerdo();
-    init_motor_direito();
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     thetas = xQueueCreate(3, sizeof(List_thetas));
     gpio_end_motor_base = xQueueCreate(1, sizeof(uint8_t));
