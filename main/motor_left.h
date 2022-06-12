@@ -7,6 +7,8 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 
+static xQueueHandle theta_left = NULL;
+
 void init_motor_left(void)
 {
     gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE);
@@ -20,14 +22,22 @@ void init_motor_left(void)
 
     gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 0);
     gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, 0);
+
+    theta_left = xQueueCreate(1, sizeof(double));
 }
 
 static void task_motor_left(void *arg)
 {
     init_motor_left();
+    double theta_left_value;
 
     while (1)
     {
+        if (xQueueReceiveFromISR(theta_left, &theta_left_value, 100))
+        {
+            ESP_LOGI("left angles", "%lf...", theta_left_value);
+        }
+
         gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 1);
         vTaskDelay(pdMS_TO_TICKS(10));
 

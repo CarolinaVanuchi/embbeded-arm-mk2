@@ -3,7 +3,6 @@
 
 #include "cJSON.h"
 #include "esp_log.h"
-#include "robot.h"
 #include "esp_log.h"
 
 #include "motor_base.h"
@@ -18,7 +17,7 @@ void take_json(char *json_values)
     if (root != NULL)
     {
         ESP_LOGI("JSON", "take_json");
-        
+
         int try_theta1 = cJSON_HasObjectItem(root, "theta1");
         int try_theta2 = cJSON_HasObjectItem(root, "theta2");
         int try_theta3 = cJSON_HasObjectItem(root, "theta3");
@@ -29,13 +28,9 @@ void take_json(char *json_values)
             double theta2 = cJSON_GetObjectItem(root, "theta2")->valuedouble;
             double theta3 = cJSON_GetObjectItem(root, "theta3")->valuedouble;
 
-            List_thetas thetas_values;
-            thetas_values.theta_1 = theta1;
-            thetas_values.theta_2 = theta2;
-            thetas_values.theta_3 = theta3;
-
-            // xQueueSend(thetas, (void *)&thetas_values, 1000);
             xQueueSend(theta_base, (void *)&theta1, 1000);
+            xQueueSend(theta_left, (void *)&theta2, 1000);
+            xQueueSend(theta_right, (void *)&theta3, 1000);
         }
         else
         {

@@ -8,17 +8,10 @@
 #include "esp_log.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
-typedef struct
-{
-    double theta_1;
-    double theta_2;
-    double theta_3;
-} List_thetas;
 
 static xQueueHandle gpio_end_motor_base = NULL;     // M1
 static xQueueHandle gpio_end_motor_esquerdo = NULL; // M2
 static xQueueHandle gpio_end_motor_direito = NULL;  // M3
-static xQueueHandle thetas = NULL;
 
 static void IRAM_ATTR gpio_isr_handler_esquerdo(void *arg)
 {
@@ -71,7 +64,6 @@ void init_end_right(void)
 static void init_robot(void)
 {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-    thetas = xQueueCreate(3, sizeof(List_thetas));
     gpio_end_motor_base = xQueueCreate(1, sizeof(uint8_t));
     init_end_left();
     init_end_right();
@@ -82,18 +74,10 @@ static void task_robot(void *arg)
     uint32_t gpio_sensor_base;
     uint32_t gpio_sensor_left;
     uint32_t gpio_sensor_right;
-    List_thetas itens;
 
     while (1)
     {
         vTaskDelay(1);
-
-        // if (xQueueReceive(thetas, &itens, 100))
-        // {
-        //     ESP_LOGI("angles", "%lf...", itens.theta_1);
-        //     ESP_LOGI("angles", "%lf...", itens.theta_2);
-        //     ESP_LOGI("angles", "%lf...", itens.theta_3);
-        // }
 
         if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 500))
         {
