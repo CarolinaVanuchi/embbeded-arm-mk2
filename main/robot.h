@@ -77,7 +77,6 @@ static void task_robot(void *arg)
 
     while (1)
     {
-        vTaskDelay(1);
 
         if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 500))
         {
@@ -96,6 +95,8 @@ static void task_robot(void *arg)
             ESP_LOGI("ISR", "Fim de curso motor 3...");
             gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 1);
         }
+
+        vTaskDelay(0);
     }
 }
 
