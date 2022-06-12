@@ -141,36 +141,39 @@ static void task_robot(void *arg)
 
     gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 0);
     gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, 0);
-    
+
     gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 0);
     gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, 0);
 
     while (1)
     {
 
-        move_motores();
+        vTaskDelay(1);
 
-        // if (xQueueReceive(thetas, &itens, 100))
-        // {
-        //     ESP_LOGI("angles", "%lf...", itens.theta_1);
-        //     ESP_LOGI("angles", "%lf...", itens.theta_2);
-        //     ESP_LOGI("angles", "%lf...", itens.theta_3);
-        // }
+        if (xQueueReceive(thetas, &itens, 100))
+        {
+            ESP_LOGI("angles", "%lf...", itens.theta_1);
+            ESP_LOGI("angles", "%lf...", itens.theta_2);
+            ESP_LOGI("angles", "%lf...", itens.theta_3);
+        }
 
-        // if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 500))
-        // {
-        //     ESP_LOGI("ISR", "Fim de curso motor 1...");
-        // }
+        if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 500))
+        {
+            ESP_LOGI("ISR", "Fim de curso motor 1...");
+            gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 1);
+        }
 
-        // if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_left, 500))
-        // {
-        //     ESP_LOGI("ISR", "Fim de curso motor 2...");
-        // }
+        if (xQueueReceiveFromISR(gpio_end_motor_esquerdo, &gpio_sensor_left, 9))
+        {
+            ESP_LOGI("ISR", "Fim de curso motor 2...");
+            gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 1);
+        }
 
-        // if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_right, 500))
-        // {
-        //     ESP_LOGI("ISR", "Fim de curso motor 3...");
-        // }
+        if (xQueueReceiveFromISR(gpio_end_motor_direito, &gpio_sensor_right, 10))
+        {
+            ESP_LOGI("ISR", "Fim de curso motor 3...");
+            gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 1);
+        }
     }
 }
 
