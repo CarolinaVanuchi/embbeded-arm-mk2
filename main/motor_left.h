@@ -12,10 +12,10 @@ static void task_motor_left(void *arg)
     while (1)
     {
         gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 1);
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
 
         gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 0);
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

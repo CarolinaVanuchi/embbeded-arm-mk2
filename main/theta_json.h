@@ -6,6 +6,10 @@
 #include "robot.h"
 #include "esp_log.h"
 
+#include "motor_base.h"
+#include "motor_left.h"
+#include "motor_right.h"
+
 void take_json(char *json_values)
 {
 
@@ -27,6 +31,10 @@ void take_json(char *json_values)
             thetas_values.theta_1 = theta1;
             thetas_values.theta_2 = theta2;
             thetas_values.theta_3 = theta3;
+            
+            xTaskCreate(task_motor_base, "controller_task_motor_base", 1024 * 2, NULL, configMAX_PRIORITIES - 1, NULL);
+            xTaskCreate(task_motor_left, "controller_task_motor_left", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
+            xTaskCreate(task_motor_right, "controller_task_motor_right", 1024 * 2, NULL, configMAX_PRIORITIES - 3, NULL);
 
             xQueueSend(thetas, (void *)&thetas_values, 1000);
         }

@@ -7,15 +7,16 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 
+// pdMS_TO_TICKS passa em millisegundos
 static void task_motor_base(void *arg)
 {
     while (1)
     {
         gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 1);
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
 
         gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 0);
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
