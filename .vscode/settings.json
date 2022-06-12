@@ -11,6 +11,7 @@
         "robot.h": "c",
         "uart.h": "c",
         "cjson.h": "c",
-        "mcpwm.h": "c"
+        "mcpwm.h": "c",
+        "assert.h": "c"
     }
 }

@@ -77,19 +77,6 @@ static void init_robot(void)
     init_end_right();
 }
 
-void move_motores()
-{
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 1);
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 1);
-    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO, 1);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO, 0);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-}
-
 static void task_robot(void *arg)
 {
     uint32_t gpio_sensor_base;
@@ -99,15 +86,14 @@ static void task_robot(void *arg)
 
     while (1)
     {
-
         vTaskDelay(1);
 
-        if (xQueueReceive(thetas, &itens, 100))
-        {
-            ESP_LOGI("angles", "%lf...", itens.theta_1);
-            ESP_LOGI("angles", "%lf...", itens.theta_2);
-            ESP_LOGI("angles", "%lf...", itens.theta_3);
-        }
+        // if (xQueueReceive(thetas, &itens, 100))
+        // {
+        //     ESP_LOGI("angles", "%lf...", itens.theta_1);
+        //     ESP_LOGI("angles", "%lf...", itens.theta_2);
+        //     ESP_LOGI("angles", "%lf...", itens.theta_3);
+        // }
 
         if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 500))
         {
