@@ -61,8 +61,8 @@ void init_motor_direito(void)
     gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO_ENABLE);
     gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, GPIO_MODE_OUTPUT);
 
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, GPIO_MODE_OUTPUT);
 
     gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
     gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
