@@ -17,6 +17,9 @@ void init_motor_base(void)
 
     gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
     gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
 }
 
 // pdMS_TO_TICKS passa em millisegundos

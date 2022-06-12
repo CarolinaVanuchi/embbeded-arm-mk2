@@ -97,15 +97,6 @@ static void task_robot(void *arg)
     uint32_t gpio_sensor_right;
     List_thetas itens;
 
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, 0);
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, 0);
-
     while (1)
     {
 

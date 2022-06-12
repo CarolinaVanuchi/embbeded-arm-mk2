@@ -17,12 +17,15 @@ void init_motor_right(void)
 
     gpio_reset_pin(CONFIG_GPIO_MOTOR_DIREITO);
     gpio_set_direction(CONFIG_GPIO_MOTOR_DIREITO, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_ENABLE, 0);
 }
 
 static void task_motor_right(void *arg)
 {
     init_motor_right();
-    
+
     while (1)
     {
         gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO, 1);
