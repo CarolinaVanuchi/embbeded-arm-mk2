@@ -1,5 +1,5 @@
-#ifndef _ROBOT_
-#define _ROBOT_
+#ifndef _SENSOR_
+#define _SENSOR_
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -61,7 +61,7 @@ void init_end_right(void)
     gpio_isr_handler_add(CONFIG_GPIO_END_MOTOR_DIREITO, gpio_isr_handler_direito, (void *)CONFIG_GPIO_END_MOTOR_DIREITO);
 }
 
-static void init_robot(void)
+static void init_sensor(void)
 {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     gpio_end_motor_base = xQueueCreate(1, sizeof(uint8_t));
@@ -69,7 +69,7 @@ static void init_robot(void)
     init_end_right();
 }
 
-static void task_robot(void *arg)
+static void task_sensor(void *arg)
 {
     uint32_t gpio_sensor_base;
     uint32_t gpio_sensor_left;

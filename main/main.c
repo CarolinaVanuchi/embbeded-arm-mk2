@@ -5,7 +5,7 @@
 #include <sys/param.h>
 
 #include "uart.h"
-#include "robot.h"
+#include "sensor.h"
 #include "end_base.h"
 
 #include "motor_base.h"
@@ -17,10 +17,10 @@ void app_main(void)
     ESP_LOGI("MK2 Plus", "Start...");
 
     init_uart();
-    init_robot();
+    init_sensor();
     init_end_base();
 
-    xTaskCreate(task_robot, "controller_task_robot", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
+    xTaskCreate(task_sensor, "controller_task_sensor", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
 
     xTaskCreate(task_motor_base, "controller_task_motor_base", 1024 * 2, NULL, configMAX_PRIORITIES - 1, NULL);
     xTaskCreate(task_motor_left, "controller_task_motor_left", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);

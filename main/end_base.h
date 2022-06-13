@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-#include "robot.h"
+#include "sensor.h"
 
 void init_end_base(void)
 {
