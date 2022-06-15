@@ -44,16 +44,22 @@ static void task_motor_base(void *arg)
 {
     init_motor_base();
     double theta_base_value;
+    int64_t teste1 = 0;
+    int64_t teste2 = 0;
 
     while (1)
     {
+        teste1 = esp_timer_get_time();
         if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
         {
             ESP_LOGI("base angles", "%lf...", theta_base_value);
             pwm_base(250);
+            teste2 = esp_timer_get_time();
         }
 
         vTaskDelay(pdMS_TO_TICKS(100));
+        ESP_LOGI("teste 1", "value: %lld us", teste1);
+        ESP_LOGI("teste 2", "value: %lld us", teste2);
     }
 }
 
