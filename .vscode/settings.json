@@ -12,6 +12,7 @@
         "uart.h": "c",
         "cjson.h": "c",
         "mcpwm.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "task.h": "c"
     }
 }

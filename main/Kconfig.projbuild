@@ -29,7 +29,7 @@ menu "Entradas e saidas"
             Micro servo digital input.
 
     config GPIO_END_BASE
-        int "Fim de curso para a base digital input"
+        int "Fim de curso para a base input"
         range 1 39
         default 27
         help
@@ -38,14 +38,14 @@ menu "Entradas e saidas"
     config GPIO_END_MOTOR_ESQUERDO
         int "Fim de curso para o elo esquerdo"
         range 1 39
-        default 13
+        default 15
         help
             Fim de curso para o elo esquerdo.
 
     config GPIO_END_MOTOR_DIREITO
         int "Fim de curso para o elo direito"
         range 1 39
-        default 14
+        default 4
         help
             Fim de curso para o elo direito.
 
@@ -59,14 +59,14 @@ menu "Entradas e saidas"
     config GPIO_MOTOR_BASE
         int "Motor da base"
         range 1 39
-        default 15
+        default 13
         help
             Motor da base.
 
     config GPIO_MOTOR_BASE_DIRECAO
         int "Sentido do motor da base"
         range 1 39
-        default 4
+        default 14
         help
             Sentido do motor da base.
 
