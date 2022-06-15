@@ -8,16 +8,7 @@
 #include "esp_log.h"
 #include "driver/mcpwm.h"
 
-#define SERVO_MIN_PULSEWIDTH_US (1000) // Minimum pulse width in microsecond
-#define SERVO_MAX_PULSEWIDTH_US (2000) // Maximum pulse width in microsecond
-#define SERVO_MAX_DEGREE (1760)         // Maximum angle in degree upto which servo can rotate
-
 static xQueueHandle theta_base = NULL;
-
-static inline uint32_t convert_servo_angle_to_duty_us_base(int angle)
-{
-    return (angle + SERVO_MAX_DEGREE) * (SERVO_MAX_PULSEWIDTH_US - SERVO_MIN_PULSEWIDTH_US) / (2 * SERVO_MAX_DEGREE) + SERVO_MIN_PULSEWIDTH_US;
-}
 
 void init_motor_base(void)
 {
@@ -28,39 +19,41 @@ void init_motor_base(void)
     gpio_set_direction(CONFIG_GPIO_MOTOR_BASE_DIRECAO, GPIO_MODE_OUTPUT);
 
     gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MOTOR_BASE);
-
-    mcpwm_config_t pwm_config = {
-        .frequency = 500,
-        .cmpr_a = 0,
-        .counter_mode = MCPWM_UP_COUNTER,
-        .duty_mode = MCPWM_DUTY_MODE_0,
-    };
-    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
 
     theta_base = xQueueCreate(1, sizeof(double));
 }
 
-// pdMS_TO_TICKS passa em millisegundos
+void pwm_base(uint8_t frequency_base)
+{
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MOTOR_BASE);
+
+    mcpwm_config_t pwm_config = {
+        .frequency = frequency_base,
+        .cmpr_a = 0,
+        .counter_mode = MCPWM_UP_COUNTER,
+        .duty_mode = MCPWM_DUTY_MODE_0,
+    };
+
+    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
+
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
+}
+
 static void task_motor_base(void *arg)
 {
     init_motor_base();
     double theta_base_value;
-    int angle = -SERVO_MAX_DEGREE;
 
     while (1)
     {
         if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
         {
             ESP_LOGI("base angles", "%lf...", theta_base_value);
+            pwm_base(250);
         }
 
-        ESP_ERROR_CHECK(mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, convert_servo_angle_to_duty_us_base(angle)));
         vTaskDelay(pdMS_TO_TICKS(100));
-        angle++;
     }
 }
 
