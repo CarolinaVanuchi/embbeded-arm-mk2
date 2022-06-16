@@ -8,6 +8,8 @@
 #include "esp_log.h"
 #include "driver/mcpwm.h"
 
+#define FREQUENCY_MAX_BASE (250)
+
 static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
 static xQueueHandle theta_base = NULL;
@@ -63,7 +65,7 @@ static void task_motor_base(void *arg)
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
             start_count_motor_base = 0;
-            pwm_base(250);
+            pwm_base(FREQUENCY_MAX_BASE);
         }
 
         if (end_sensor_base_check == 1)
@@ -71,7 +73,7 @@ static void task_motor_base(void *arg)
             start_count_motor_base = 1;
             end_sensor_base_check = 0;
             start_timer_motor_base = esp_timer_get_time();
-            end_motor = get_end_time(theta_base_value, 250);
+            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX_BASE);
         }
 
         if (start_count_motor_base == 1)
