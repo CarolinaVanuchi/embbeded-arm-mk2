@@ -6,6 +6,7 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
+#include "motor_base.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -82,6 +83,7 @@ static void task_sensor(void *arg)
         {
             ESP_LOGI("ISR", "Fim de curso motor 1...");
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 1);
+            end_sensor_base_check = 1;
         }
 
         if (xQueueReceiveFromISR(gpio_end_motor_esquerdo, &gpio_sensor_left, 9))

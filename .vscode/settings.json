@@ -13,6 +13,7 @@
         "cjson.h": "c",
         "mcpwm.h": "c",
         "assert.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "motor_base.h": "c"
     }
 }
