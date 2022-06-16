@@ -9,6 +9,8 @@
 #include "motor_left.h"
 #include "motor_right.h"
 
+static const char *TAG_JSON = "JSON";
+
 void take_json(char *json_values)
 {
 
@@ -28,13 +30,17 @@ void take_json(char *json_values)
             double theta2 = cJSON_GetObjectItem(root, "theta2")->valuedouble;
             double theta3 = cJSON_GetObjectItem(root, "theta3")->valuedouble;
 
-            xQueueSend(theta_base, (void *)&theta1, 1000);
+            if ((theta1 >= 10.0) && (theta1 <= 320.0))
+                xQueueSend(theta_base, (void *)&theta1, 1000);
+            else
+                ESP_LOGI(TAG_JSON, "intervalo de theta para base nao aceito");
+
             xQueueSend(theta_left, (void *)&theta2, 1000);
             xQueueSend(theta_right, (void *)&theta3, 1000);
         }
         else
         {
-            ESP_LOGI("JSON", "Formato incorreto...");
+            ESP_LOGI(TAG_JSON, "Formato incorreto...");
         }
     }
     cJSON_Delete(root);

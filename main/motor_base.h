@@ -7,8 +7,7 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 #include "driver/mcpwm.h"
-
-#define FREQUENCY_MAX_BASE (250)
+#include "generic_motor.h"
 
 #define HORARIO_BASE (1)
 #define ANTI_HORARIO_BASE (0)
@@ -49,27 +48,6 @@ void pwm_base(uint8_t frequency_base)
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
 }
 
-double get_new_theta(double new_theta_base, double old_theta_base)
-{
-    double aux_base = new_theta_base - old_theta_base;
-    if (aux_base > 0)
-    {
-        gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, HORARIO_BASE);
-        return aux_base;
-    }
-    else if (aux_base < 0)
-    {
-        gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
-        return (aux_base * (-1));
-    }
-
-    return 0;
-}
-double get_end_time(double angle_base, int hertz_base)
-{
-    double passos = ((200 * 8 * angle_base) / 360);
-    return (passos / hertz_base) * 1000000;
-}
 static void task_motor_base(void *arg)
 {
 
@@ -95,13 +73,13 @@ static void task_motor_base(void *arg)
             if (task_on_base == 1)
             {
                 theta_base_value_new = theta_base_value;
-                theta_base_value = get_new_theta(theta_base_value, theta_base_value_old);
+                theta_base_value = get_new_theta(theta_base_value, theta_base_value_old, HORARIO_BASE, ANTI_HORARIO_BASE, CONFIG_GPIO_MOTOR_BASE_DIRECAO);
 
                 theta_base_value_old = theta_base_value_new;
                 end_sensor_base_check = 1;
 
                 if (theta_base_value != 0)
-                    pwm_base(FREQUENCY_MAX_BASE);
+                    pwm_base(FREQUENCY_MAX);
 
                 ESP_LOGI(TAG_MOTOR_BASE, "theta original %f", theta_base_value_new);
                 ESP_LOGI(TAG_MOTOR_BASE, "theta novo %f", theta_base_value);
@@ -111,7 +89,7 @@ static void task_motor_base(void *arg)
             {
                 theta_base_value_old = theta_base_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
-                pwm_base(FREQUENCY_MAX_BASE);
+                pwm_base(FREQUENCY_MAX);
                 task_on_base = 1;
             }
         }
@@ -121,7 +99,7 @@ static void task_motor_base(void *arg)
             start_count_motor_base = 1;
             end_sensor_base_check = 0;
             start_timer_motor_base = esp_timer_get_time();
-            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX_BASE);
+            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX, 1, 1);
         }
 
         if (start_count_motor_base == 1)
