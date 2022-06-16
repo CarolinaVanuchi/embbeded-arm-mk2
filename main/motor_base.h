@@ -72,6 +72,7 @@ double get_end_time(double angle_base, int hertz_base)
 }
 static void task_motor_base(void *arg)
 {
+
     init_motor_base();
     uint8_t task_on_base = 0;
 
@@ -86,7 +87,6 @@ static void task_motor_base(void *arg)
 
     while (1)
     {
-        
         if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
@@ -135,7 +135,7 @@ static void task_motor_base(void *arg)
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
             start_count_motor_base = 0;
         }
-         vTaskDelay(100);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

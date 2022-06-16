@@ -1,23 +1,24 @@
-#include <stdio.h>
+#ifndef _LED_
+#define _LED_
+
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
 
-#define BLINK_GPIO (21)
-
 
 static void blink_led(uint8_t status)
 {
    
-    gpio_set_level(BLINK_GPIO, status);
+    gpio_set_level(CONFIG_GPIO_LED, status);
 }
 
 static void set_config_led(void)
 {
-    gpio_reset_pin(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(CONFIG_GPIO_LED);
+    gpio_set_direction(CONFIG_GPIO_LED, GPIO_MODE_OUTPUT);
 }
 
 void on_led() {
@@ -27,3 +28,5 @@ void on_led() {
 void off_led() {
     blink_led(0);
 }
+
+#endif
