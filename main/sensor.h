@@ -79,7 +79,7 @@ static void task_sensor(void *arg)
     while (1)
     {
 
-        if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 10))
+        if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, (TickType_t) 1))
         {
             ESP_LOGI("ISR", "Fim de curso motor 1...");
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 1);
