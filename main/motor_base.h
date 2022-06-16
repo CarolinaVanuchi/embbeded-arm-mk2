@@ -40,26 +40,33 @@ void pwm_base(uint8_t frequency_base)
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
 }
 
+double get_end_time(double angle_base, int hertz_base) {
+    double passos = ((1600 * angle_base) / 360);
+    return (passos/hertz_base)*100000;
+}
 static void task_motor_base(void *arg)
 {
     init_motor_base();
     double theta_base_value;
-    int64_t teste1 = 0;
-    int64_t teste2 = 0;
+    int64_t start_timer = 0;
+    int64_t current_timer = 0;
+    double end_motor = 0;
 
     while (1)
     {
-        teste1 = esp_timer_get_time();
         if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
         {
             ESP_LOGI("base angles", "%lf...", theta_base_value);
             pwm_base(250);
-            teste2 = esp_timer_get_time();
+            start_timer = esp_timer_get_time();
+            end_motor = get_end_time(theta_base_value, 250);
         }
+        current_timer = esp_timer_get_time();
 
-        vTaskDelay(pdMS_TO_TICKS(100));
-        ESP_LOGI("teste 1", "value: %lld us", teste1);
-        ESP_LOGI("teste 2", "value: %lld us", teste2);
+        
+        ESP_LOGI("start_timer", "value: %lld us", start_timer);
+        ESP_LOGI("current_timer", "value: %lld us", current_timer);
+        ESP_LOGI("end", "value: %lf us", end_motor);
     }
 }
 
