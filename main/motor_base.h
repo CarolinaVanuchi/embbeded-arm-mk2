@@ -35,14 +35,14 @@ void pwm_base(uint8_t frequency_base)
     };
 
     mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
-
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, 0);
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 0);
 }
 
-double get_end_time(double angle_base, int hertz_base) {
-    double passos = ((1600 * angle_base) / 360);
-    return (passos/hertz_base)*100000;
+double get_end_time(double angle_base, int hertz_base)
+{
+    double passos = ((200 * 8  * angle_base) / 360);
+    return (passos / hertz_base) * 1000000;
 }
 static void task_motor_base(void *arg)
 {
@@ -51,22 +51,30 @@ static void task_motor_base(void *arg)
     int64_t start_timer = 0;
     int64_t current_timer = 0;
     double end_motor = 0;
-
+    uint8_t start_count = 0;
     while (1)
     {
+
         if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
         {
             ESP_LOGI("base angles", "%lf...", theta_base_value);
             pwm_base(250);
             start_timer = esp_timer_get_time();
             end_motor = get_end_time(theta_base_value, 250);
+            start_count = 1;
         }
         current_timer = esp_timer_get_time();
 
-        
-        ESP_LOGI("start_timer", "value: %lld us", start_timer);
-        ESP_LOGI("current_timer", "value: %lld us", current_timer);
-        ESP_LOGI("end", "value: %lf us", end_motor);
+        if (start_count == 1 && ((current_timer - start_timer) >= end_motor))
+        {
+            ESP_LOGI("CONTROLLER", "HERE");
+            mcpwm_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
+            gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, 1);
+            start_count = 0;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(100));
+        ESP_LOGI("MOTOR BASE ", "RUNNING");
     }
 }
 
