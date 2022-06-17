@@ -15,6 +15,13 @@
 #define ENABLE_LEFT (0)
 #define DISABLE_LEFT (1)
 
+#define LEDC_TIMER_LEFT LEDC_TIMER_1
+#define LEDC_MODE_LEFT LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT) // Define the output GPIO
+#define LEDC_CHANNEL_LEFT LEDC_CHANNEL_1
+#define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_LEFT (4095)
+
 static const char *TAG_MOTOR_LEFT = "MOTOR LEFT";
 
 static xQueueHandle theta_left = NULL;
@@ -35,16 +42,27 @@ void init_motor_left(void)
 
 void pwm_left(uint8_t frequency_left)
 {
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MOTOR_LEFT);
 
-    mcpwm_config_t pwm_config = {
-        .frequency = frequency_left,
-        .cmpr_a = 0,
-        .counter_mode = MCPWM_UP_COUNTER,
-        .duty_mode = MCPWM_DUTY_MODE_0,
-    };
+    ledc_timer_config_t ledc_timer_left = {
+        .speed_mode = LEDC_MODE_LEFT,
+        .timer_num = LEDC_TIMER_LEFT,
+        .duty_resolution = LEDC_DUTY_RES_LEFT,
+        .freq_hz = frequency_left,
+        .clk_cfg = LEDC_AUTO_CLK};
 
-    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_1, &pwm_config);
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer_left));
+
+    ledc_channel_config_t ledc_channel_left = {
+        .speed_mode = LEDC_MODE_LEFT,
+        .channel = LEDC_CHANNEL_LEFT,
+        .timer_sel = LEDC_TIMER_LEFT,
+        .intr_type = LEDC_INTR_DISABLE,
+        .gpio_num = LEDC_OUTPUT_IO_LEFT,
+        .duty = 0,
+        .hpoint = 0};
+
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel_left));
+
     gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, ENABLE_LEFT);
 }
 
@@ -65,7 +83,6 @@ static void task_motor_left(void *arg)
 
     while (1)
     {
-         pwm_left(FREQUENCY_MAX);
         if (xQueueReceiveFromISR(theta_left, &theta_left_value, 100))
         {
             ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
@@ -80,7 +97,10 @@ static void task_motor_left(void *arg)
                 end_sensor_left_check = 1;
 
                 if (theta_left_value != 0)
+                {
                     pwm_left(FREQUENCY_MAX);
+                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
+                }
 
                 ESP_LOGI(TAG_MOTOR_LEFT, "theta original %f", theta_left_value_new);
                 ESP_LOGI(TAG_MOTOR_LEFT, "theta novo %f", theta_left_value);
@@ -91,6 +111,7 @@ static void task_motor_left(void *arg)
                 theta_left_value_old = theta_left_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, ANTI_HORARIO_LEFT);
                 pwm_left(FREQUENCY_MAX);
+                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
                 task_on_left = 1;
             }
         }
@@ -110,7 +131,7 @@ static void task_motor_left(void *arg)
 
         if (start_count_motor_left == 1 && ((current_timer_motor_left - start_timer_motor_left) >= end_motor))
         {
-            mcpwm_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
+            ledc_stop(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, 0);
             gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
             start_count_motor_left = 0;
         }

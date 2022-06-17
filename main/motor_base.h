@@ -15,12 +15,12 @@
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
 
-#define LEDC_TIMER LEDC_TIMER_0
-#define LEDC_MODE LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO (CONFIG_GPIO_MOTOR_BASE) // Define the output GPIO
-#define LEDC_CHANNEL LEDC_CHANNEL_0
-#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY (4095)
+#define LEDC_TIMER_BASE LEDC_TIMER_0
+#define LEDC_MODE_BASE LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO_BASE (CONFIG_GPIO_MOTOR_BASE) // Define the output GPIO
+#define LEDC_CHANNEL_BASE LEDC_CHANNEL_0
+#define LEDC_DUTY_RES_BASE LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_BASE (4095)
 
 static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
@@ -43,25 +43,25 @@ void init_motor_base(void)
 void pwm_base(uint8_t frequency_base)
 {
 
-    // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer_config_t ledc_timer = {
-        .speed_mode = LEDC_MODE,
-        .timer_num = LEDC_TIMER,
-        .duty_resolution = LEDC_DUTY_RES,
-        .freq_hz = frequency_base, // Set output frequency at 5 kHz
+    ledc_timer_config_t ledc_timer_base = {
+        .speed_mode = LEDC_MODE_BASE,
+        .timer_num = LEDC_TIMER_BASE,
+        .duty_resolution = LEDC_DUTY_RES_BASE,
+        .freq_hz = frequency_base,
         .clk_cfg = LEDC_AUTO_CLK};
-    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
-    // Prepare and then apply the LEDC PWM channel configuration
-    ledc_channel_config_t ledc_channel = {
-        .speed_mode = LEDC_MODE,
-        .channel = LEDC_CHANNEL,
-        .timer_sel = LEDC_TIMER,
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer_base));
+
+    ledc_channel_config_t ledc_channel_base = {
+        .speed_mode = LEDC_MODE_BASE,
+        .channel = LEDC_CHANNEL_BASE,
+        .timer_sel = LEDC_TIMER_BASE,
         .intr_type = LEDC_INTR_DISABLE,
-        .gpio_num = LEDC_OUTPUT_IO,
-        .duty = 0, // Set duty to 0%
+        .gpio_num = LEDC_OUTPUT_IO_BASE,
+        .duty = 0,
         .hpoint = 0};
-    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel_base));
 
     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
 }
@@ -99,7 +99,7 @@ static void task_motor_base(void *arg)
                 if (theta_base_value != 0)
                 {
                     pwm_base(FREQUENCY_MAX);
-                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY));
+                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
                 }
 
                 ESP_LOGI(TAG_MOTOR_BASE, "theta original %f", theta_base_value_new);
@@ -111,7 +111,7 @@ static void task_motor_base(void *arg)
                 theta_base_value_old = theta_base_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
                 pwm_base(FREQUENCY_MAX);
-                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY));
+                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
                 task_on_base = 1;
             }
         }
@@ -131,7 +131,7 @@ static void task_motor_base(void *arg)
 
         if (start_count_motor_base == 1 && ((current_timer_motor_base - start_timer_motor_base) >= end_motor))
         {
-            ledc_stop(LEDC_MODE, LEDC_CHANNEL, 0);
+            ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
             start_count_motor_base = 0;
         }
