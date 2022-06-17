@@ -10,6 +10,9 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "theta_json.h"
+#include "motor_base.h"
+#include "motor_left.h"
+#include "motor_right.h"
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -42,7 +45,16 @@ static void tx_task(void *arg)
     while (1)
     {
         ESP_LOGI("TX", "tx_task");
-        sendData(TX_TASK_TAG, "Enviando");
+
+        cJSON *root = cJSON_CreateObject();
+
+        cJSON_AddNumberToObject(root, "theta1", theta_1_send);
+        cJSON_AddNumberToObject(root, "theta2", theta_2_send);
+        cJSON_AddNumberToObject(root, "theta3", theta_3_send);
+        char *buffer = cJSON_Print(root);
+        sendData(TX_TASK_TAG, "buffer");
+        sendData(TX_TASK_TAG, buffer);
+        cJSON_Delete(root);
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }

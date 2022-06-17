@@ -27,13 +27,14 @@ void app_main(void)
     set_config_led();
     on_led();
 
+    
     xTaskCreate(task_sensor, "task_sensor", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
 
     xTaskCreate(task_motor_base, "task_base", 1024 * 2, NULL, configMAX_PRIORITIES - 1, NULL);
     xTaskCreate(task_motor_left, "task_left", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
     xTaskCreate(task_motor_right, "task_right", 1024 * 2, NULL, configMAX_PRIORITIES - 3, NULL);
 
+    xTaskCreate(tx_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 6, NULL);
     xTaskCreate(task_end_base, "task_end_base", 1024 * 2, NULL, configMAX_PRIORITIES - 4, NULL);
     xTaskCreate(rx_task, "uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 5, NULL);
-    xTaskCreate(tx_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 6, NULL);
 }

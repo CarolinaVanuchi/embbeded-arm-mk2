@@ -19,6 +19,7 @@
         "end_base.h": "c",
         "rtc_wdt.h": "c",
         "ledc.h": "c",
-        "*.ipp": "c"
+        "*.ipp": "c",
+        "gpio.h": "c"
     }
 }

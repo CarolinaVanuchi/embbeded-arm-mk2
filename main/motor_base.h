@@ -8,6 +8,7 @@
 #include "esp_log.h"
 #include "driver/ledc.h"
 #include "generic_motor.h"
+#include "uart.h"
 
 #define HORARIO_BASE (1)
 #define ANTI_HORARIO_BASE (0)
@@ -26,6 +27,7 @@ static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
 static xQueueHandle theta_base = NULL;
 uint8_t end_sensor_base_check = 0;
+double theta_1_send = 0;
 
 void init_motor_base(void)
 {
@@ -127,6 +129,7 @@ static void task_motor_base(void *arg)
         if (start_count_motor_base == 1)
         {
             current_timer_motor_base = esp_timer_get_time();
+            theta_1_send = generate_values_of_theta(current_timer_motor_base);
         }
 
         if (start_count_motor_base == 1 && ((current_timer_motor_base - start_timer_motor_base) >= end_motor))

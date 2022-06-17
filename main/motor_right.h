@@ -8,6 +8,7 @@
 #include "esp_log.h"
 #include "driver/mcpwm.h"
 #include "generic_motor.h"
+#include "uart.h"
 
 #define HORARIO_RIGHT (1)
 #define ANTI_HORARIO_RIGHT (0)
@@ -26,6 +27,7 @@ static const char *TAG_MOTOR_RIGHT = "MOTOR RIGHT";
 
 static xQueueHandle theta_right = NULL;
 uint8_t end_sensor_right_check = 0;
+double theta_3_send = 0;
 
 void init_motor_right(void)
 {
@@ -127,6 +129,7 @@ static void task_motor_right(void *arg)
         if (start_count_motor_right == 1)
         {
             current_timer_motor_right = esp_timer_get_time();
+            theta_3_send = generate_values_of_theta(current_timer_motor_right);
         }
 
         if (start_count_motor_right == 1 && ((current_timer_motor_right - start_timer_motor_right) >= end_motor))

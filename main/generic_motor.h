@@ -20,11 +20,14 @@ double get_new_theta(double get_new_theta, double old_theta, uint8_t horario, ui
     return 0;
 }
 
-
 double get_end_time(double angle, int hertz, int step, double gear)
 {
     double passos = ((200 * 8 * angle) / 360);
     return (passos / hertz) * 1000000;
 }
 
+double generate_values_of_theta(double time_value)
+{
+    return time_value;
+}
 #endif
