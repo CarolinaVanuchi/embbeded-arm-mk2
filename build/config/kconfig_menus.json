@@ -2088,8 +2088,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Fim de curso para o elo direito.",
-                "id": "GPIO_END_MOTOR_DIREITO",
-                "name": "GPIO_END_MOTOR_DIREITO",
+                "id": "GPIO_END_MOTOR_RIGHT",
+                "name": "GPIO_END_MOTOR_RIGHT",
                 "range": [
                     1,
                     39
@@ -2179,8 +2179,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Motor direito enable.",
-                "id": "GPIO_MOTOR_DIREITO_ENABLE",
-                "name": "GPIO_MOTOR_DIREITO_ENABLE",
+                "id": "GPIO_MOTOR_RIGHT_ENABLE",
+                "name": "GPIO_MOTOR_RIGHT_ENABLE",
                 "range": [
                     1,
                     39
@@ -2192,8 +2192,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Motor direito.",
-                "id": "GPIO_MOTOR_DIREITO",
-                "name": "GPIO_MOTOR_DIREITO",
+                "id": "GPIO_MOTOR_RIGHT",
+                "name": "GPIO_MOTOR_RIGHT",
                 "range": [
                     1,
                     39
@@ -2205,8 +2205,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Sentido do motor direito.",
-                "id": "GPIO_MOTOR_DIREITO_DIRECAO",
-                "name": "GPIO_MOTOR_DIREITO_DIRECAO",
+                "id": "GPIO_MOTOR_RIGHT_DIRECAO",
+                "name": "GPIO_MOTOR_RIGHT_DIRECAO",
                 "range": [
                     1,
                     39

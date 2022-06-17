@@ -46,12 +46,12 @@ void init_end_left(void)
 
 void init_end_right(void)
 {
-    gpio_reset_pin(CONFIG_GPIO_END_MOTOR_DIREITO);
-    gpio_set_direction(CONFIG_GPIO_END_MOTOR_DIREITO, GPIO_MODE_INPUT);
+    gpio_reset_pin(CONFIG_GPIO_END_MOTOR_RIGHT);
+    gpio_set_direction(CONFIG_GPIO_END_MOTOR_RIGHT, GPIO_MODE_INPUT);
 
     gpio_config_t config_end_direito = {
         .intr_type = GPIO_PIN_INTR_POSEDGE,
-        .pin_bit_mask = (1ULL << CONFIG_GPIO_END_MOTOR_DIREITO),
+        .pin_bit_mask = (1ULL << CONFIG_GPIO_END_MOTOR_RIGHT),
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = 1,
     };
@@ -59,7 +59,7 @@ void init_end_right(void)
     gpio_config(&config_end_direito);
 
     gpio_end_motor_direito = xQueueCreate(1, sizeof(uint32_t));
-    gpio_isr_handler_add(CONFIG_GPIO_END_MOTOR_DIREITO, gpio_isr_handler_direito, (void *)CONFIG_GPIO_END_MOTOR_DIREITO);
+    gpio_isr_handler_add(CONFIG_GPIO_END_MOTOR_RIGHT, gpio_isr_handler_direito, (void *)CONFIG_GPIO_END_MOTOR_RIGHT);
 }
 
 static void init_sensor(void)
@@ -96,7 +96,8 @@ static void task_sensor(void *arg)
         if (xQueueReceiveFromISR(gpio_end_motor_direito, &gpio_sensor_right, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 3...");
-            gpio_set_level(CONFIG_GPIO_MOTOR_DIREITO_DIRECAO, 1);
+            gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, 1);
+            end_sensor_right_check = 1;
         }
 
         vTaskDelay(0);
