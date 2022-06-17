@@ -17,6 +17,7 @@
         "motor_base.h": "c",
         "esp_task_wdt.h": "c",
         "end_base.h": "c",
-        "rtc_wdt.h": "c"
+        "rtc_wdt.h": "c",
+        "ledc.h": "c"
     }
 }

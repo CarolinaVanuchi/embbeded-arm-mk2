@@ -7,59 +7,114 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 #include "driver/mcpwm.h"
+#include "generic_motor.h"
 
-#define SERVO_MIN_PULSEWIDTH_US (1000) // Minimum pulse width in microsecond
-#define SERVO_MAX_PULSEWIDTH_US (2000) // Maximum pulse width in microsecond
-#define SERVO_MAX_DEGREE (320)         // Maximum angle in degree upto which servo can rotate
+#define HORARIO_LEFT (1)
+#define ANTI_HORARIO_LEFT (0)
+
+#define ENABLE_LEFT (0)
+#define DISABLE_LEFT (1)
+
+static const char *TAG_MOTOR_LEFT = "MOTOR LEFT";
 
 static xQueueHandle theta_left = NULL;
-
-static inline uint32_t convert_servo_angle_to_duty_us_left(int angle)
-{
-    return (angle + SERVO_MAX_DEGREE) * (SERVO_MAX_PULSEWIDTH_US - SERVO_MIN_PULSEWIDTH_US) / (2 * SERVO_MAX_DEGREE) + SERVO_MIN_PULSEWIDTH_US;
-}
+uint8_t end_sensor_left_check = 0;
 
 void init_motor_left(void)
 {
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_LEFT_ENABLE);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_LEFT_ENABLE, GPIO_MODE_OUTPUT);
 
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO);
-    gpio_set_direction(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_LEFT_DIRECAO);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, GPIO_MODE_OUTPUT);
 
-    gpio_reset_pin(CONFIG_GPIO_MOTOR_ESQUERDO);
-
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MOTOR_ESQUERDO);
-
-    mcpwm_config_t pwm_config = {
-        .frequency = 500,
-        .cmpr_a = 0,
-        .counter_mode = MCPWM_UP_COUNTER,
-        .duty_mode = MCPWM_DUTY_MODE_0,
-    };
-    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_DIRECAO, 0);
-    gpio_set_level(CONFIG_GPIO_MOTOR_ESQUERDO_ENABLE, 0);
+    gpio_reset_pin(CONFIG_GPIO_MOTOR_LEFT);
 
     theta_left = xQueueCreate(1, sizeof(double));
 }
 
+void pwm_left(uint8_t frequency_left)
+{
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, CONFIG_GPIO_MOTOR_LEFT);
+
+    mcpwm_config_t pwm_config = {
+        .frequency = frequency_left,
+        .cmpr_a = 0,
+        .counter_mode = MCPWM_UP_COUNTER,
+        .duty_mode = MCPWM_DUTY_MODE_0,
+    };
+
+    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_1, &pwm_config);
+    gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, ENABLE_LEFT);
+}
+
 static void task_motor_left(void *arg)
 {
+
     init_motor_left();
+    uint8_t task_on_left = 0;
+
+    double theta_left_value_new;
+    double theta_left_value_old;
+
     double theta_left_value;
-    int angle = -SERVO_MAX_DEGREE;
+    int64_t start_timer_motor_left = 0;
+    int64_t current_timer_motor_left = 0;
+    double end_motor = 0;
+    uint8_t start_count_motor_left = 0;
+
     while (1)
     {
+         pwm_left(FREQUENCY_MAX);
         if (xQueueReceiveFromISR(theta_left, &theta_left_value, 100))
         {
-            ESP_LOGI("left angles", "%lf...", theta_left_value);
+            ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
+            start_count_motor_left = 0;
+
+            if (task_on_left == 1)
+            {
+                theta_left_value_new = theta_left_value;
+                theta_left_value = get_new_theta(theta_left_value, theta_left_value_old, HORARIO_LEFT, ANTI_HORARIO_LEFT, CONFIG_GPIO_MOTOR_LEFT_DIRECAO);
+
+                theta_left_value_old = theta_left_value_new;
+                end_sensor_left_check = 1;
+
+                if (theta_left_value != 0)
+                    pwm_left(FREQUENCY_MAX);
+
+                ESP_LOGI(TAG_MOTOR_LEFT, "theta original %f", theta_left_value_new);
+                ESP_LOGI(TAG_MOTOR_LEFT, "theta novo %f", theta_left_value);
+                ESP_LOGI(TAG_MOTOR_LEFT, "theta old %f", theta_left_value_old);
+            }
+            else
+            {
+                theta_left_value_old = theta_left_value;
+                gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, ANTI_HORARIO_LEFT);
+                pwm_left(FREQUENCY_MAX);
+                task_on_left = 1;
+            }
         }
 
-        ESP_ERROR_CHECK(mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, convert_servo_angle_to_duty_us_left(angle)));
-        vTaskDelay(pdMS_TO_TICKS(100));
-        angle++;
+        if (end_sensor_left_check == 1)
+        {
+            start_count_motor_left = 1;
+            end_sensor_left_check = 0;
+            start_timer_motor_left = esp_timer_get_time();
+            end_motor = get_end_time(theta_left_value, FREQUENCY_MAX, 1, 1);
+        }
+
+        if (start_count_motor_left == 1)
+        {
+            current_timer_motor_left = esp_timer_get_time();
+        }
+
+        if (start_count_motor_left == 1 && ((current_timer_motor_left - start_timer_motor_left) >= end_motor))
+        {
+            mcpwm_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
+            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
+            start_count_motor_left = 0;
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

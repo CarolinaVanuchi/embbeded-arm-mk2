@@ -2075,8 +2075,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Fim de curso para o elo esquerdo.",
-                "id": "GPIO_END_MOTOR_ESQUERDO",
-                "name": "GPIO_END_MOTOR_ESQUERDO",
+                "id": "GPIO_END_MOTOR_LEFT",
+                "name": "GPIO_END_MOTOR_LEFT",
                 "range": [
                     1,
                     39
@@ -2140,8 +2140,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Motor esquerdo enable.",
-                "id": "GPIO_MOTOR_ESQUERDO_ENABLE",
-                "name": "GPIO_MOTOR_ESQUERDO_ENABLE",
+                "id": "GPIO_MOTOR_LEFT_ENABLE",
+                "name": "GPIO_MOTOR_LEFT_ENABLE",
                 "range": [
                     1,
                     39
@@ -2153,8 +2153,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Motor esquerdo.",
-                "id": "GPIO_MOTOR_ESQUERDO",
-                "name": "GPIO_MOTOR_ESQUERDO",
+                "id": "GPIO_MOTOR_LEFT",
+                "name": "GPIO_MOTOR_LEFT",
                 "range": [
                     1,
                     39
@@ -2166,8 +2166,8 @@
                 "children": [],
                 "depends_on": null,
                 "help": "Sentido do motor esquerdo.",
-                "id": "GPIO_MOTOR_ESQUERDO_DIRECAO",
-                "name": "GPIO_MOTOR_ESQUERDO_DIRECAO",
+                "id": "GPIO_MOTOR_LEFT_DIRECAO",
+                "name": "GPIO_MOTOR_LEFT_DIRECAO",
                 "range": [
                     1,
                     39
