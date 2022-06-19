@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-#include "driver/mcpwm.h"
+#include "driver/ledc.h"
 #include "generic_motor.h"
 #include "uart.h"
 
@@ -16,12 +16,12 @@
 #define ENABLE_RIGHT (0)
 #define DISABLE_RIGHT (1)
 
-#define LEDC_TIMER_RIGHT LEDC_TIMER_3
+#define LEDC_TIMER_RIGHT LEDC_TIMER_2
 #define LEDC_MODE_RIGHT LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO_RIGHT (CONFIG_GPIO_MOTOR_RIGHT)
-#define LEDC_CHANNEL_RIGHT LEDC_CHANNEL_3
-#define LEDC_DUTY_RES_RIGHT LEDC_TIMER_13_BIT
-#define LEDC_DUTY_RIGHT (4095)
+#define LEDC_OUTPUT_IO_RIGHT (CONFIG_GPIO_MOTOR_RIGHT) 
+#define LEDC_CHANNEL_RIGHT LEDC_CHANNEL_2
+#define LEDC_DUTY_RES_RIGHT LEDC_TIMER_13_BIT 
+#define LEDC_DUTY_RIGHT (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
 
 static const char *TAG_MOTOR_RIGHT = "MOTOR RIGHT";
 
