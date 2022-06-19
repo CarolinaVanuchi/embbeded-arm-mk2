@@ -6,7 +6,7 @@
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-#include "driver/mcpwm.h"
+#include "driver/ledc.h"
 #include "generic_motor.h"
 #include "uart.h"
 
@@ -16,12 +16,12 @@
 #define ENABLE_LEFT (0)
 #define DISABLE_LEFT (1)
 
-#define LEDC_TIMER_LEFT LEDC_TIMER_2
+#define LEDC_TIMER_LEFT LEDC_TIMER_1
 #define LEDC_MODE_LEFT LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT) // Define the output GPIO
-#define LEDC_CHANNEL_LEFT LEDC_CHANNEL_2
-#define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_LEFT (4095)
+#define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT) 
+#define LEDC_CHANNEL_LEFT LEDC_CHANNEL_1
+#define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT 
+#define LEDC_DUTY_LEFT (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
 
 static const char *TAG_MOTOR_LEFT = "MOTOR LEFT";
 
