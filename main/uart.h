@@ -21,7 +21,7 @@ void init_uart(void)
     const uart_config_t uart_config = {
         .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
+        .parity = UART_PARITY_EVEN,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     };
@@ -46,16 +46,15 @@ static void tx_task(void *arg)
     {
         ESP_LOGI("TX", "tx_task");
 
-        cJSON *root = cJSON_CreateObject();
+        // cJSON *root = cJSON_CreateObject();
 
-        cJSON_AddNumberToObject(root, "theta1", theta_1_send);
-        cJSON_AddNumberToObject(root, "theta2", theta_2_send);
-        cJSON_AddNumberToObject(root, "theta3", theta_3_send);
-        char *buffer = cJSON_Print(root);
-        sendData(TX_TASK_TAG, "buffer");
-        sendData(TX_TASK_TAG, buffer);
-        cJSON_Delete(root);
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        // cJSON_AddNumberToObject(root, "theta1", theta_1_send);
+        // cJSON_AddNumberToObject(root, "theta2", theta_2_send);
+        // cJSON_AddNumberToObject(root, "theta3", theta_3_send);
+        // char *buffer = cJSON_Print(root);
+        // sendData(TX_TASK_TAG, buffer);
+        // cJSON_Delete(root);
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 

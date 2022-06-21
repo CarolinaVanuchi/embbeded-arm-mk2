@@ -20,6 +20,7 @@
         "rtc_wdt.h": "c",
         "ledc.h": "c",
         "*.ipp": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "motor_right.h": "c"
     }
 }

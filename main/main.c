@@ -16,6 +16,7 @@
 
 void app_main(void)
 {
+
     ESP_LOGI("MK2 Plus", "Start...");
     rtc_wdt_protect_off();
     rtc_wdt_disable();

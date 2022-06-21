@@ -89,14 +89,14 @@ static void task_sensor(void *arg)
         if (xQueueReceiveFromISR(gpio_end_motor_esquerdo, &gpio_sensor_left, 9))
         {
             ESP_LOGI("ISR", "Fim de curso motor 2...");
-            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, 1);
+            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, HORARIO_LEFT);
             end_sensor_left_check = 1;
         }
 
         if (xQueueReceiveFromISR(gpio_end_motor_direito, &gpio_sensor_right, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 3...");
-            gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, 1);
+            gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, HORARIO_RIGHT);
             end_sensor_right_check = 1;
         }
 

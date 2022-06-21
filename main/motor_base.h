@@ -15,6 +15,7 @@
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
+#define FREQUENCY_MAX_BASE (250)
 
 #define LEDC_TIMER_BASE LEDC_TIMER_0
 #define LEDC_MODE_BASE LEDC_LOW_SPEED_MODE
@@ -92,6 +93,7 @@ static void task_motor_base(void *arg)
 
             if (task_on_base == 1)
             {
+                
                 theta_base_value_new = theta_base_value;
                 theta_base_value = get_new_theta(theta_base_value, theta_base_value_old, HORARIO_BASE, ANTI_HORARIO_BASE, CONFIG_GPIO_MOTOR_BASE_DIRECAO);
 
@@ -100,7 +102,7 @@ static void task_motor_base(void *arg)
 
                 if (theta_base_value != 0)
                 {
-                    pwm_base(FREQUENCY_MAX);
+                    pwm_base(FREQUENCY_MAX_BASE);
                     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
                 }
 
@@ -112,7 +114,7 @@ static void task_motor_base(void *arg)
             {
                 theta_base_value_old = theta_base_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
-                pwm_base(FREQUENCY_MAX);
+                pwm_base(FREQUENCY_MAX_BASE);
                 ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
                 task_on_base = 1;
             }
@@ -123,13 +125,12 @@ static void task_motor_base(void *arg)
             start_count_motor_base = 1;
             end_sensor_base_check = 0;
             start_timer_motor_base = esp_timer_get_time();
-            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX, 1, 1);
+            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX_BASE, 8, 5.5);
         }
 
         if (start_count_motor_base == 1)
         {
             current_timer_motor_base = esp_timer_get_time();
-            theta_1_send = generate_values_of_theta(current_timer_motor_base);
         }
 
         if (start_count_motor_base == 1 && ((current_timer_motor_base - start_timer_motor_base) >= end_motor))
@@ -137,6 +138,7 @@ static void task_motor_base(void *arg)
             ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
             start_count_motor_base = 0;
+            theta_1_send = 0;
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }

@@ -12,6 +12,7 @@
 
 #define HORARIO_RIGHT (1)
 #define ANTI_HORARIO_RIGHT (0)
+#define FREQUENCY_MAX_RIGHT (250)
 
 #define ENABLE_RIGHT (0)
 #define DISABLE_RIGHT (1)
@@ -100,7 +101,7 @@ static void task_motor_right(void *arg)
 
                 if (theta_right_value != 0)
                 {
-                    pwm_right(FREQUENCY_MAX);
+                    pwm_right(FREQUENCY_MAX_RIGHT);
                     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_RIGHT, LEDC_CHANNEL_RIGHT, LEDC_DUTY_RIGHT));
                 }
 
@@ -112,7 +113,7 @@ static void task_motor_right(void *arg)
             {
                 theta_right_value_old = theta_right_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, ANTI_HORARIO_RIGHT);
-                pwm_right(FREQUENCY_MAX);
+                pwm_right(FREQUENCY_MAX_RIGHT);
                 ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_RIGHT, LEDC_CHANNEL_RIGHT, LEDC_DUTY_RIGHT));
                 task_on_right = 1;
             }
@@ -123,13 +124,12 @@ static void task_motor_right(void *arg)
             start_count_motor_right = 1;
             end_sensor_right_check = 0;
             start_timer_motor_right = esp_timer_get_time();
-            end_motor = get_end_time(theta_right_value, FREQUENCY_MAX, 1, 1);
+            end_motor = get_end_time(theta_right_value, FREQUENCY_MAX_RIGHT, 4, 10.8);
         }
 
         if (start_count_motor_right == 1)
         {
             current_timer_motor_right = esp_timer_get_time();
-            theta_3_send = generate_values_of_theta(current_timer_motor_right);
         }
 
         if (start_count_motor_right == 1 && ((current_timer_motor_right - start_timer_motor_right) >= end_motor))

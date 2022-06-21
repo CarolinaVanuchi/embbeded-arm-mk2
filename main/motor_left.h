@@ -10,8 +10,9 @@
 #include "generic_motor.h"
 #include "uart.h"
 
-#define HORARIO_LEFT (1)
-#define ANTI_HORARIO_LEFT (0)
+#define HORARIO_LEFT (0)
+#define ANTI_HORARIO_LEFT (1)
+#define FREQUENCY_MAX_LEFT (250)
 
 #define ENABLE_LEFT (0)
 #define DISABLE_LEFT (1)
@@ -100,7 +101,7 @@ static void task_motor_left(void *arg)
 
                 if (theta_left_value != 0)
                 {
-                    pwm_left(FREQUENCY_MAX);
+                    pwm_left(FREQUENCY_MAX_LEFT);
                     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
                 }
 
@@ -112,7 +113,7 @@ static void task_motor_left(void *arg)
             {
                 theta_left_value_old = theta_left_value;
                 gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, ANTI_HORARIO_LEFT);
-                pwm_left(FREQUENCY_MAX);
+                pwm_left(FREQUENCY_MAX_LEFT);
                 ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
                 task_on_left = 1;
             }
@@ -123,13 +124,12 @@ static void task_motor_left(void *arg)
             start_count_motor_left = 1;
             end_sensor_left_check = 0;
             start_timer_motor_left = esp_timer_get_time();
-            end_motor = get_end_time(theta_left_value, FREQUENCY_MAX, 1, 1);
+            end_motor = get_end_time(theta_left_value, FREQUENCY_MAX_LEFT, 4, 10.8);
         }
 
         if (start_count_motor_left == 1)
         {
             current_timer_motor_left = esp_timer_get_time();
-            theta_2_send = generate_values_of_theta(current_timer_motor_left);
         }
 
         if (start_count_motor_left == 1 && ((current_timer_motor_left - start_timer_motor_left) >= end_motor))
