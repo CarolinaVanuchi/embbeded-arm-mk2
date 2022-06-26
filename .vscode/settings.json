@@ -21,6 +21,9 @@
         "ledc.h": "c",
         "*.ipp": "c",
         "gpio.h": "c",
-        "motor_right.h": "c"
+        "motor_right.h": "c",
+        "esp_heap_caps.h": "c",
+        "inttypes.h": "c",
+        "timers.h": "c"
     }
 }

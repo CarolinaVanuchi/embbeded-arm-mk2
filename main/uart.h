@@ -44,7 +44,7 @@ static void tx_task(void *arg)
     static const char *TX_TASK_TAG = "TX_TASK";
     while (1)
     {
-        ESP_LOGI("TX", "tx_task");
+        ESP_LOGI(TX_TASK_TAG, "tx_task");
 
         // cJSON *root = cJSON_CreateObject();
 
@@ -65,7 +65,7 @@ static void rx_task(void *arg)
 
     while (1)
     {
-        const int rxBytes = uart_read_bytes(UART_NUM_2, data, RX_BUF_SIZE, 500 / portTICK_PERIOD_MS);
+        const int rxBytes = uart_read_bytes(UART_NUM_2, data, RX_BUF_SIZE, pdMS_TO_TICKS(500));
 
         if (rxBytes > 0)
         {
@@ -76,6 +76,8 @@ static void rx_task(void *arg)
             take_json(json);
             free(json);
         }
+        
+        esp_task_wdt_reset();  
     }
     free(data);
 }

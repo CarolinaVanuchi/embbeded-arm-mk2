@@ -3,12 +3,17 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
+// #include "freertos/timers.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-#include "driver/ledc.h"
+#include <math.h>
+#include "wavegen.h"
+#include "esp_log.h"
+#include "driver/timer.h"
 #include "generic_motor.h"
-#include "uart.h"
+#include "inttypes.h"
 
 #define HORARIO_BASE (1)
 #define ANTI_HORARIO_BASE (0)
@@ -16,19 +21,24 @@
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
 #define FREQUENCY_MAX_BASE (250)
+#define FREQUENCY_MIN_BASE (100)
+#define RESOLUCAO (30)
 
-#define LEDC_TIMER_BASE LEDC_TIMER_0
-#define LEDC_MODE_BASE LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO_BASE (CONFIG_GPIO_MOTOR_BASE) 
-#define LEDC_CHANNEL_BASE LEDC_CHANNEL_0
-#define LEDC_DUTY_RES_BASE LEDC_TIMER_13_BIT 
-#define LEDC_DUTY_BASE (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
+#define WITH_RELOAD 1
+#define TIMER_INTR_US 7
+#define TIMER_DIVIDER 16
+#define TIMER_TICKS (TIMER_BASE_CLK / TIMER_DIVIDER)
+#define SEC_TO_MICRO_SEC(x) ((x) / 1000 / 1000)
+#define ALARM_VAL_US SEC_TO_MICRO_SEC(TIMER_INTR_US *TIMER_TICKS)
+
+#define TIMER_GROUP_BASE (TIMER_GROUP_1)
+#define TIMER_BASE (TIMER_0)
 
 static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
 static xQueueHandle theta_base = NULL;
-uint8_t end_sensor_base_check = 0;
-double theta_1_send = 0;
+wave_t *wave_g = NULL;
+// TimerHandle_t xTimerBase;
 
 void init_motor_base(void)
 {
@@ -39,108 +49,88 @@ void init_motor_base(void)
     gpio_set_direction(CONFIG_GPIO_MOTOR_BASE_DIRECAO, GPIO_MODE_OUTPUT);
 
     gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
+    gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
 
     theta_base = xQueueCreate(1, sizeof(double));
 }
 
-void pwm_base(uint8_t frequency_base)
+static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
+{
+    if (wave_g != NULL)
+    {
+        gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
+        gpio_set_level(CONFIG_GPIO_MOTOR_BASE, waveRead(wave_g));
+    }
+
+    return pdFALSE;
+}
+
+// static void vTimerCallback(TimerHandle_t xTimer)
+// {
+//     gpio_set_level(CONFIG_GPIO_MOTOR_BASE, waveRead(wave_g));
+// }
+
+void init_timer_base(void)
 {
 
-    ledc_timer_config_t ledc_timer_base = {
-        .speed_mode = LEDC_MODE_BASE,
-        .timer_num = LEDC_TIMER_BASE,
-        .duty_resolution = LEDC_DUTY_RES_BASE,
-        .freq_hz = frequency_base,
-        .clk_cfg = LEDC_AUTO_CLK};
+    // xTimerBase = xTimerCreate(
+    //     "xTimer Base",
+    //     pdMS_TO_TICKS(0.1),
+    //     pdTRUE,
+    //     (void *)0,
+    //     vTimerCallback);
 
-    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer_base));
+    esp_err_t ret;
 
-    ledc_channel_config_t ledc_channel_base = {
-        .speed_mode = LEDC_MODE_BASE,
-        .channel = LEDC_CHANNEL_BASE,
-        .timer_sel = LEDC_TIMER_BASE,
-        .intr_type = LEDC_INTR_DISABLE,
-        .gpio_num = LEDC_OUTPUT_IO_BASE,
-        .duty = 0,
-        .hpoint = 0};
+    timer_config_t config = {
+        .divider = 80,
+        .counter_dir = TIMER_COUNT_UP,
+        .counter_en = TIMER_PAUSE,
+        .alarm_en = TIMER_ALARM_EN,
+        .intr_type = TIMER_INTR_LEVEL,
+        .auto_reload = TIMER_AUTORELOAD_EN,
+    };
 
-    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel_base));
-
-    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
+    ret = timer_init(TIMER_GROUP_BASE, TIMER_BASE, &config);
+    ESP_ERROR_CHECK(ret);
+    timer_set_counter_value(TIMER_GROUP_BASE, TIMER_BASE, 0);
+    ret = timer_enable_intr(TIMER_GROUP_BASE, TIMER_BASE);
+    ESP_ERROR_CHECK(ret);
+    timer_isr_callback_add(TIMER_GROUP_BASE, TIMER_BASE, on_timer_alarm_cb, NULL, 0);
 }
 
 static void task_motor_base(void *arg)
 {
-
     init_motor_base();
-    uint8_t task_on_base = 0;
-
-    double theta_base_value_new;
-    double theta_base_value_old;
 
     double theta_base_value;
-    int64_t start_timer_motor_base = 0;
-    int64_t current_timer_motor_base = 0;
-    double end_motor = 0;
-    uint8_t start_count_motor_base = 0;
-
     while (1)
     {
-        if (xQueueReceiveFromISR(theta_base, &theta_base_value, 100))
+        if(xQueueReceive(theta_base, &theta_base_value, 10))
         {
+            // timer_pause(TIMER_GROUP_BASE, TIMER_BASE);
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
-            start_count_motor_base = 0;
-
-            if (task_on_base == 1)
+            if (wave_g != NULL)
             {
-                
-                theta_base_value_new = theta_base_value;
-                theta_base_value = get_new_theta(theta_base_value, theta_base_value_old, HORARIO_BASE, ANTI_HORARIO_BASE, CONFIG_GPIO_MOTOR_BASE_DIRECAO);
-
-                theta_base_value_old = theta_base_value_new;
-                end_sensor_base_check = 1;
-
-                if (theta_base_value != 0)
-                {
-                    pwm_base(FREQUENCY_MAX_BASE);
-                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
-                }
-
-                ESP_LOGI(TAG_MOTOR_BASE, "theta original %f", theta_base_value_new);
-                ESP_LOGI(TAG_MOTOR_BASE, "theta novo %f", theta_base_value);
-                ESP_LOGI(TAG_MOTOR_BASE, "theta old %f", theta_base_value_old);
+                waveDelete(wave_g);
             }
-            else
-            {
-                theta_base_value_old = theta_base_value;
-                gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
-                pwm_base(FREQUENCY_MAX_BASE);
-                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE));
-                task_on_base = 1;
-            }
-        }
 
-        if (end_sensor_base_check == 1)
-        {
-            start_count_motor_base = 1;
-            end_sensor_base_check = 0;
-            start_timer_motor_base = esp_timer_get_time();
-            end_motor = get_end_time(theta_base_value, FREQUENCY_MAX_BASE, 8, 5.5);
-        }
+            wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base_value, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
 
-        if (start_count_motor_base == 1)
-        {
-            current_timer_motor_base = esp_timer_get_time();
-        }
+            // for(size_t i = 0; i < wave_g->points->size; i++)
+            //     ESP_LOGI("P", "%i", waveRead(wave_g));
+            
+            // waveReadReset(wave_g);
 
-        if (start_count_motor_base == 1 && ((current_timer_motor_base - start_timer_motor_base) >= end_motor))
-        {
-            ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
-            gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
-            start_count_motor_base = 0;
-            theta_1_send = 0;
+            // xTimerStart(xTimerBase, pdMS_TO_TICKS(10));
+            init_timer_base();
+            timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
+            uint32_t aa = ceil(wave_g->period * (1000000ULL));
+            ESP_LOGI("t", "%f", wave_g->period);
+            ESP_LOGI("P", "%d", aa);
+            timer_start(TIMER_GROUP_BASE, TIMER_BASE);
         }
-        vTaskDelay(pdMS_TO_TICKS(10));
+        esp_task_wdt_reset();
     }
 }
 

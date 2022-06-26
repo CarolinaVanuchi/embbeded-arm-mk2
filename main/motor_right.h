@@ -4,6 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "esp_task_wdt.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
 #include "driver/ledc.h"
@@ -86,7 +87,7 @@ static void task_motor_right(void *arg)
 
     while (1)
     {
-        if (xQueueReceiveFromISR(theta_right, &theta_right_value, 100))
+        if (xQueueReceive(theta_right, &theta_right_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_RIGHT, "%lf...", theta_right_value);
             start_count_motor_right = 0;
@@ -138,7 +139,7 @@ static void task_motor_right(void *arg)
             gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_ENABLE, DISABLE_RIGHT);
             start_count_motor_right = 0;
         }
-        vTaskDelay(pdMS_TO_TICKS(10));
+        esp_task_wdt_reset();
     }
 }
 

@@ -24,4 +24,10 @@ double get_end_time(double angle, int hertz, int step_value, double gear)
     return (passos / hertz) * 1000000;
 }
 
+double get_step(double angle, int step_value, double gear)
+{
+    return ((200 * step_value * angle * gear) / 360);
+}
+
+
 #endif

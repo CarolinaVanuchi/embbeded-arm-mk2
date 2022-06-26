@@ -3,6 +3,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
@@ -20,12 +21,12 @@ static void task_end_base(void *arg)
 
     while (1)
     {
-        input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
-        if (input_end_base_sensor == 0)
-        {
-           xQueueSend(gpio_end_motor_base, (void *)&input_end_base_sensor, 1000);
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        // input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
+        // if (input_end_base_sensor == 0)
+        // {
+        //    xQueueSend(gpio_end_motor_base, (void *)&input_end_base_sensor, pdMS_TO_TICKS(100));
+        // }
+        esp_task_wdt_reset();
     }
 }
 

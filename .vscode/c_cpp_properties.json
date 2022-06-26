@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Espressif/frameworks/esp-idf-v4.4/components/**"
+                "C:/Espressif/frameworks/esp-idf-v4.4.1/components/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -13,7 +13,7 @@
             ],
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "macos-gcc-x64"
         }
     ],
     "version": 4

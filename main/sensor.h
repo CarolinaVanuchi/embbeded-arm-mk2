@@ -3,6 +3,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
@@ -79,28 +80,28 @@ static void task_sensor(void *arg)
     while (1)
     {
 
-        if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, (TickType_t) 1))
+        if (xQueueReceive(gpio_end_motor_base, &gpio_sensor_base, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 1...");
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, HORARIO_BASE);
-            end_sensor_base_check = 1;
+            // end_sensor_base_check = 1;
         }
 
-        if (xQueueReceiveFromISR(gpio_end_motor_esquerdo, &gpio_sensor_left, 9))
+        if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_left, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 2...");
             gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, HORARIO_LEFT);
             end_sensor_left_check = 1;
         }
 
-        if (xQueueReceiveFromISR(gpio_end_motor_direito, &gpio_sensor_right, 10))
+        if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_right, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 3...");
             gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, HORARIO_RIGHT);
             end_sensor_right_check = 1;
         }
 
-        vTaskDelay(0);
+        esp_task_wdt_reset();
     }
 }
 
