@@ -96,7 +96,6 @@ void pwm_base(uint8_t frequency_base)
         .hpoint = 0};
 
     ledc_channel_config(&ledc_channel_base);
-
 }
 
 static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
@@ -132,6 +131,13 @@ void init_timer_base(void)
     timer_isr_callback_add(TIMER_GROUP_BASE, TIMER_BASE, on_timer_alarm_cb, NULL, 0);
 }
 
+void init_move_base(double theta_base)
+{
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);   
+    timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
+    timer_start(TIMER_GROUP_BASE, TIMER_BASE);
+}
+
 static void task_motor_base(void *arg)
 {
     init_end_base();
@@ -150,12 +156,13 @@ static void task_motor_base(void *arg)
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
-            
+
             if (!start_now)
                 start_run = true;
 
             if (start_now)
             {
+                ESP_LOGI(TAG_MOTOR_BASE, "start_now");
                 theta_base_value_old = theta_base_value;
                 pwm_base(FREQUENCY_MIN_BASE);
                 ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE);
@@ -164,26 +171,28 @@ static void task_motor_base(void *arg)
 
         if ((gpio_get_level(CONFIG_GPIO_END_BASE) == 0) && !start_run)
         {
+            ESP_LOGI(TAG_MOTOR_BASE, "desativar");
             start_now = false;
 
             ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
 
             start_run = true;
+
+            gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
+            gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
+            init_timer_base();
         }
 
         if (start_run)
         {
+            ESP_LOGI(TAG_MOTOR_BASE, "move");
+            
             if (wave_g != NULL)
             {
                 waveDelete(wave_g);
             }
-init_motor_base();
-            ESP_LOGI("RW", "RE");
-            ESP_LOGI("RW", "%f", theta_base_value);
-            wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base_value, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-            init_timer_base();
-            timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
-            timer_start(TIMER_GROUP_BASE, TIMER_BASE);
+
+            init_move_base(theta_base_value);
 
             start_run = false;
         }
