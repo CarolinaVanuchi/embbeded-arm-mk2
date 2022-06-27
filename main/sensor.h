@@ -11,7 +11,6 @@
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
-// static xQueueHandle gpio_end_motor_base = NULL;    // M1
 static xQueueHandle gpio_end_motor_esquerdo = NULL; // M2
 static xQueueHandle gpio_end_motor_direito = NULL;  // M3
 
@@ -66,7 +65,6 @@ void init_end_right(void)
 static void init_sensor(void)
 {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-    // gpio_end_motor_base = xQueueCreate(1, sizeof(uint8_t));
     init_end_left();
     init_end_right();
 }
@@ -80,18 +78,9 @@ static void task_sensor(void *arg)
     while (1)
     {
 
-            // if (xQueueReceive(gpio_end_motor_base, NULL, (TickType_t) 1))
-            // {
-            //     ESP_LOGI("ISR", "Fim de curso motor 1...");
-            //     gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, HORARIO_BASE);
-            //     end_sensor_base_check = true;
-            //     gpio_end_motor_base = false;
-            // }
-
         if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_left, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 2...");
-            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, HORARIO_LEFT);
             end_sensor_left_check = 1;
         }
 
