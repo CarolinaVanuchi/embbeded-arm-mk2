@@ -24,6 +24,9 @@
         "motor_right.h": "c",
         "esp_heap_caps.h": "c",
         "inttypes.h": "c",
-        "timers.h": "c"
+        "timers.h": "c",
+        "timer.h": "c",
+        "generic_motor.h": "c",
+        "wavegen.h": "c"
     }
 }

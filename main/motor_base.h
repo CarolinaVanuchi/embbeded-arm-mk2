@@ -4,7 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_task_wdt.h"
-// #include "freertos/timers.h"
+#include "driver/ledc.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
@@ -34,10 +34,29 @@
 #define TIMER_GROUP_BASE (TIMER_GROUP_1)
 #define TIMER_BASE (TIMER_0)
 
+#define LEDC_TIMER_BASE LEDC_TIMER_0
+#define LEDC_MODE_BASE LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO_BASE (CONFIG_GPIO_MOTOR_BASE)
+#define LEDC_CHANNEL_BASE LEDC_CHANNEL_0
+#define LEDC_DUTY_RES_BASE LEDC_TIMER_13_BIT
+#define LEDC_DUTY_BASE (4095)
+
 static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
 static xQueueHandle theta_base = NULL;
 wave_t *wave_g = NULL;
+
+uint8_t end_sensor_base_check = 0;
+
+/**
+ * @brief Inicializa os pinos dos sensores da base
+ *
+ */
+void init_end_base(void)
+{
+    gpio_config_t end_base_sensor = {.mode = GPIO_MODE_INPUT, .pin_bit_mask = (1ULL << CONFIG_GPIO_END_BASE)};
+    gpio_config(&end_base_sensor);
+}
 
 void init_motor_base(void)
 {
@@ -50,7 +69,34 @@ void init_motor_base(void)
     gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
     gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
 
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
+    gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
     theta_base = xQueueCreate(1, sizeof(double));
+}
+
+void pwm_base(uint8_t frequency_base)
+{
+
+    ledc_timer_config_t ledc_timer_base = {
+        .speed_mode = LEDC_MODE_BASE,
+        .timer_num = LEDC_TIMER_BASE,
+        .duty_resolution = LEDC_DUTY_RES_BASE,
+        .freq_hz = frequency_base,
+        .clk_cfg = LEDC_AUTO_CLK};
+
+    ledc_timer_config(&ledc_timer_base);
+
+    ledc_channel_config_t ledc_channel_base = {
+        .speed_mode = LEDC_MODE_BASE,
+        .channel = LEDC_CHANNEL_BASE,
+        .timer_sel = LEDC_TIMER_BASE,
+        .intr_type = LEDC_INTR_DISABLE,
+        .gpio_num = LEDC_OUTPUT_IO_BASE,
+        .duty = 0,
+        .hpoint = 0};
+
+    ledc_channel_config(&ledc_channel_base);
+
 }
 
 static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
@@ -66,7 +112,6 @@ static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
 
 void init_timer_base(void)
 {
-
 
     esp_err_t ret;
 
@@ -89,30 +134,60 @@ void init_timer_base(void)
 
 static void task_motor_base(void *arg)
 {
+    init_end_base();
     init_motor_base();
 
     double theta_base_value;
+    double theta_base_value_new;
+    double theta_base_value_old;
+
+    bool start_now = true;
+
+    bool start_run = false;
     while (1)
     {
-        if(xQueueReceive(theta_base, &theta_base_value, 10))
+
+        if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
-           
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
+            
+            if (!start_now)
+                start_run = true;
+
+            if (start_now)
+            {
+                theta_base_value_old = theta_base_value;
+                pwm_base(FREQUENCY_MIN_BASE);
+                ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE);
+            }
+        }
+
+        if ((gpio_get_level(CONFIG_GPIO_END_BASE) == 0) && !start_run)
+        {
+            start_now = false;
+
+            ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
+
+            start_run = true;
+        }
+
+        if (start_run)
+        {
             if (wave_g != NULL)
             {
                 waveDelete(wave_g);
             }
-
+init_motor_base();
+            ESP_LOGI("RW", "RE");
+            ESP_LOGI("RW", "%f", theta_base_value);
             wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base_value, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-
-          
             init_timer_base();
             timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
-            uint32_t aa = ceil(wave_g->period * (1000000ULL));
-            ESP_LOGI("t", "%f", wave_g->period);
-            ESP_LOGI("P", "%d", aa);
             timer_start(TIMER_GROUP_BASE, TIMER_BASE);
+
+            start_run = false;
         }
+
         esp_task_wdt_reset();
     }
 }
