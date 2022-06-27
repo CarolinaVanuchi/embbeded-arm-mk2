@@ -13,6 +13,9 @@ double get_new_theta(double get_new_theta, double old_theta, uint8_t horario, ui
     {
         gpio_set_level(dir_port, anti_horario);
         return (aux_left * (-1));
+    } else if (get_new_theta == 0) {
+         gpio_set_level(dir_port, anti_horario);
+         return old_theta;
     }
 
     return 0;

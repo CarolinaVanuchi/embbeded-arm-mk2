@@ -102,7 +102,6 @@ static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
 {
     if (wave_g != NULL)
     {
-        gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, ANTI_HORARIO_BASE);
         gpio_set_level(CONFIG_GPIO_MOTOR_BASE, waveRead(wave_g));
     }
 
@@ -133,7 +132,7 @@ void init_timer_base(void)
 
 void init_move_base(double theta_base)
 {
-    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);   
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -145,11 +144,11 @@ static void task_motor_base(void *arg)
 
     double theta_base_value;
     double theta_base_value_new;
-    double theta_base_value_old;
+    double theta_base_value_old = 0;
 
     bool start_now = true;
-
     bool start_run = false;
+    bool not_first = false;
     while (1)
     {
 
@@ -180,19 +179,41 @@ static void task_motor_base(void *arg)
 
             gpio_reset_pin(CONFIG_GPIO_MOTOR_BASE);
             gpio_set_direction(CONFIG_GPIO_MOTOR_BASE, GPIO_MODE_OUTPUT);
+            gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, HORARIO_BASE);
+
             init_timer_base();
         }
 
         if (start_run)
         {
             ESP_LOGI(TAG_MOTOR_BASE, "move");
-            
+
+            if (not_first)
+            {
+                ESP_LOGI(TAG_MOTOR_BASE, "PEPINO");
+                theta_base_value_new = theta_base_value;
+                theta_base_value = get_new_theta(theta_base_value, theta_base_value_old, HORARIO_BASE, ANTI_HORARIO_BASE, CONFIG_GPIO_MOTOR_BASE_DIRECAO);
+                theta_base_value_old = theta_base_value_new;
+            }
+
+            ESP_LOGI(TAG_MOTOR_BASE, "NOVO THETA BASE: %f", theta_base_value);
+            not_first = true;
+
             if (wave_g != NULL)
             {
                 waveDelete(wave_g);
+                wave_g = NULL;
             }
 
-            init_move_base(theta_base_value);
+            if (theta_base_value > 0)
+            {
+                ESP_LOGI(TAG_MOTOR_BASE, "BAATATA");
+                gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
+                init_move_base(theta_base_value);
+            } else {
+                ESP_LOGI(TAG_MOTOR_BASE, "ARROZ");
+                gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
+            }
 
             start_run = false;
         }
