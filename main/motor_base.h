@@ -197,6 +197,7 @@ static void task_motor_base(void *arg)
             }
 
             ESP_LOGI(TAG_MOTOR_BASE, "NOVO THETA BASE: %f", theta_base_value);
+            ESP_LOGI(TAG_MOTOR_BASE, "OLD THETA BASE: %f", theta_base_value_old);
             not_first = true;
 
             if (wave_g != NULL)
