@@ -29,7 +29,7 @@ void app_main(void)
     xTaskCreate(task_motor_left, "task_left", 1024 * 2, NULL, configMAX_PRIORITIES - 3, NULL);
     xTaskCreate(task_motor_right, "task_right", 1024 * 2, NULL, configMAX_PRIORITIES - 3, NULL);
 
-    xTaskCreate(task_sensor, "task_sensor", 1024, NULL, configMAX_PRIORITIES, NULL);
+    xTaskCreate(task_sensor, "task_sensor", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
     xTaskCreate(rx_task, "uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
     
     // xTaskCreate(tx_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 6, NULL);
