@@ -20,8 +20,8 @@
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
-#define FREQUENCY_MAX_BASE (250)
-#define FREQUENCY_MIN_BASE (100)
+#define FREQUENCY_MAX_BASE (200)
+#define FREQUENCY_MIN_BASE (80)
 #define RESOLUCAO (30)
 
 #define WITH_RELOAD 1
@@ -38,7 +38,6 @@ static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 
 static xQueueHandle theta_base = NULL;
 wave_t *wave_g = NULL;
-// TimerHandle_t xTimerBase;
 
 void init_motor_base(void)
 {
@@ -65,20 +64,9 @@ static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
     return pdFALSE;
 }
 
-// static void vTimerCallback(TimerHandle_t xTimer)
-// {
-//     gpio_set_level(CONFIG_GPIO_MOTOR_BASE, waveRead(wave_g));
-// }
-
 void init_timer_base(void)
 {
 
-    // xTimerBase = xTimerCreate(
-    //     "xTimer Base",
-    //     pdMS_TO_TICKS(0.1),
-    //     pdTRUE,
-    //     (void *)0,
-    //     vTimerCallback);
 
     esp_err_t ret;
 
@@ -108,7 +96,7 @@ static void task_motor_base(void *arg)
     {
         if(xQueueReceive(theta_base, &theta_base_value, 10))
         {
-            // timer_pause(TIMER_GROUP_BASE, TIMER_BASE);
+           
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
             if (wave_g != NULL)
             {
@@ -117,12 +105,7 @@ static void task_motor_base(void *arg)
 
             wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base_value, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
 
-            // for(size_t i = 0; i < wave_g->points->size; i++)
-            //     ESP_LOGI("P", "%i", waveRead(wave_g));
-            
-            // waveReadReset(wave_g);
-
-            // xTimerStart(xTimerBase, pdMS_TO_TICKS(10));
+          
             init_timer_base();
             timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
             uint32_t aa = ceil(wave_g->period * (1000000ULL));

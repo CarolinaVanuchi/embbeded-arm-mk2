@@ -9,24 +9,31 @@
 #include "esp_log.h"
 #include "sensor.h"
 
+/**
+ * @brief Inicializa os pinos dos sensores da base
+ * 
+ */
 void init_end_base(void)
 {
     gpio_config_t end_base_sensor = {.mode = GPIO_MODE_INPUT, .pin_bit_mask = (1ULL << CONFIG_GPIO_END_BASE)};
     gpio_config(&end_base_sensor);
 }
 
+/**
+ * @brief Task que observa o sensor da base
+ * 
+ * @param arg 
+ */
 static void task_end_base(void *arg)
 {
-    uint8_t input_end_base_sensor;
-
     while (1)
     {
-        // input_end_base_sensor = gpio_get_level(CONFIG_GPIO_END_BASE);
-        // if (input_end_base_sensor == 0)
-        // {
-        //    xQueueSend(gpio_end_motor_base, (void *)&input_end_base_sensor, pdMS_TO_TICKS(100));
-        // }
-        esp_task_wdt_reset();
+        if (gpio_get_level(CONFIG_GPIO_END_BASE) == 0)
+        {
+           gpio_end_motor_base = true;
+           
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

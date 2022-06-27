@@ -11,6 +11,11 @@
 
 static const char *TAG_JSON = "JSON";
 
+/**
+ * @brief  Funcao que realiza a validacao do JSON recebido
+ * 
+ * @param json_values 
+ */
 void take_json(char *json_values)
 {
 

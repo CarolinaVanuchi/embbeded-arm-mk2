@@ -16,6 +16,9 @@
 
 static const int RX_BUF_SIZE = 1024;
 
+/***
+ * @brief Configuracao da UART
+ */
 void init_uart(void)
 {
     const uart_config_t uart_config = {
@@ -39,28 +42,13 @@ int sendData(const char *logName, const char *data)
     return txBytes;
 }
 
-static void tx_task(void *arg)
-{
-    static const char *TX_TASK_TAG = "TX_TASK";
-    while (1)
-    {
-        ESP_LOGI(TX_TASK_TAG, "tx_task");
-
-        // cJSON *root = cJSON_CreateObject();
-
-        // cJSON_AddNumberToObject(root, "theta1", theta_1_send);
-        // cJSON_AddNumberToObject(root, "theta2", theta_2_send);
-        // cJSON_AddNumberToObject(root, "theta3", theta_3_send);
-        // char *buffer = cJSON_Print(root);
-        // sendData(TX_TASK_TAG, buffer);
-        // cJSON_Delete(root);
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-}
-
+/**
+ * @brief Funcao RX leitura dos dados recebidos via serial
+ */
 static void rx_task(void *arg)
 {
 
+    static const char *RX_TASK_TAG = "TX_TASK";
     uint8_t *data = (uint8_t *)malloc(RX_BUF_SIZE + 1);
 
     while (1)
@@ -69,17 +57,39 @@ static void rx_task(void *arg)
 
         if (rxBytes > 0)
         {
-            ESP_LOGI("RX", "rx_task");
+            ESP_LOGI(RX_TASK_TAG, "rx_task");
             char *json = (char *)calloc(rxBytes + 1, sizeof(char));
             memcpy(json, data, rxBytes);
             json[rxBytes] = '\0';
             take_json(json);
             free(json);
         }
-        
-        esp_task_wdt_reset();  
+
+        esp_task_wdt_reset();
     }
     free(data);
 }
+
+// /**
+//  *  @brief Funcao TX de envio de dados
+//  */
+// static void tx_task(void *arg)
+// {
+//     static const char *TX_TASK_TAG = "TX_TASK";
+//     while (1)
+//     {
+//         ESP_LOGI(TX_TASK_TAG, "tx_task");
+
+// cJSON *root = cJSON_CreateObject();
+
+// cJSON_AddNumberToObject(root, "theta1", theta_1_send);
+// cJSON_AddNumberToObject(root, "theta2", theta_2_send);
+// cJSON_AddNumberToObject(root, "theta3", theta_3_send);
+// char *buffer = cJSON_Print(root);
+// sendData(TX_TASK_TAG, buffer);
+// cJSON_Delete(root);
+//         vTaskDelay(pdMS_TO_TICKS(5000));
+//     }
+// }
 
 #endif
