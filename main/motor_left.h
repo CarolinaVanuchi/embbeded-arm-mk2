@@ -23,7 +23,7 @@
 #define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT) 
 #define LEDC_CHANNEL_LEFT LEDC_CHANNEL_1
 #define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT 
-#define LEDC_DUTY_LEFT (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
+#define LEDC_DUTY_LEFT (4095) 
 
 static const char *TAG_MOTOR_LEFT = "MOTOR LEFT";
 
