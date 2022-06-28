@@ -123,71 +123,35 @@ static void task_motor_left(void *arg)
 {
 
     init_motor_left();
-    uint8_t task_on_left = 0;
-
-    double theta_left_value_new;
-    double theta_left_value_old;
-
+   
     double theta_left_value;
-    int64_t start_timer_motor_left = 0;
-    int64_t current_timer_motor_left = 0;
-    double end_motor = 0;
-    uint8_t start_count_motor_left = 0;
+    double theta_left_value_new;
+    double theta_left_value_old = 0;
+
+    bool start_now_left = true;
+    bool start_run_left = false;
+    bool not_first_left = false;
 
     while (1)
     {
         if (xQueueReceive(theta_left, &theta_left_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
-            start_count_motor_left = 0;
 
-            if (task_on_left == 1)
-            {
-                theta_left_value_new = theta_left_value;
-                theta_left_value = get_new_theta(theta_left_value, theta_left_value_old, HORARIO_LEFT, ANTI_HORARIO_LEFT, CONFIG_GPIO_MOTOR_LEFT_DIRECAO);
+             if (!start_now_left)
+                start_run_left = true;
 
-                theta_left_value_old = theta_left_value_new;
-                end_sensor_left_check = 1;
-
-                if (theta_left_value != 0)
-                {
-                    pwm_left(FREQUENCY_MAX_LEFT);
-                    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
-                }
-
-                ESP_LOGI(TAG_MOTOR_LEFT, "theta original %f", theta_left_value_new);
-                ESP_LOGI(TAG_MOTOR_LEFT, "theta novo %f", theta_left_value);
-                ESP_LOGI(TAG_MOTOR_LEFT, "theta old %f", theta_left_value_old);
-            }
-            else
+            if (start_now_left)
             {
                 theta_left_value_old = theta_left_value;
-                gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, ANTI_HORARIO_LEFT);
-                pwm_left(FREQUENCY_MAX_LEFT);
-                ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT));
-                task_on_left = 1;
+                pwm_left(FREQUENCY_MIN_LEFT);
+                ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT);
             }
+            
+            
         }
 
-        if (end_sensor_left_check == 1)
-        {
-            start_count_motor_left = 1;
-            end_sensor_left_check = 0;
-            start_timer_motor_left = esp_timer_get_time();
-            end_motor = get_end_time(theta_left_value, FREQUENCY_MAX_LEFT, 4, 10.8);
-        }
-
-        if (start_count_motor_left == 1)
-        {
-            current_timer_motor_left = esp_timer_get_time();
-        }
-
-        if (start_count_motor_left == 1 && ((current_timer_motor_left - start_timer_motor_left) >= end_motor))
-        {
-            ledc_stop(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, 0);
-            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
-            start_count_motor_left = 0;
-        }
+       
        esp_task_wdt_reset();
     }
 }
