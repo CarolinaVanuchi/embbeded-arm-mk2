@@ -139,9 +139,11 @@ static void task_motor_base(void *arg)
     double theta_base_value_new;
     double theta_base_value_old = 0;
 
-    bool start_now = true;
-    bool start_run = false;
-    bool not_first = false;
+    bool start_now  = true;
+    bool start_run  = false;
+    bool not_first  = false;
+    bool check_base = false;
+
     while (1)
     {
 
@@ -154,16 +156,14 @@ static void task_motor_base(void *arg)
 
             if (start_now)
             {
-                ESP_LOGI(TAG_MOTOR_BASE, "start_now");
                 theta_base_value_old = theta_base_value;
                 pwm_base(FREQUENCY_MIN_BASE);
                 ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE);
             }
         }
 
-        if ((gpio_get_level(CONFIG_GPIO_END_BASE) == 0) && !start_run)
+        if ((gpio_get_level(CONFIG_GPIO_END_BASE) == 0) && !start_run && !check_base)
         {
-            ESP_LOGI(TAG_MOTOR_BASE, "desativar");
             start_now = false;
 
             ledc_stop(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, 0);
@@ -175,15 +175,13 @@ static void task_motor_base(void *arg)
             gpio_set_level(CONFIG_GPIO_MOTOR_BASE_DIRECAO, HORARIO_BASE);
 
             init_timer_base();
+            check_base = true;
         }
 
         if (start_run)
         {
-            ESP_LOGI(TAG_MOTOR_BASE, "move");
-
             if (not_first)
             {
-                ESP_LOGI(TAG_MOTOR_BASE, "PEPINO");
                 theta_base_value_new = theta_base_value;
                 theta_base_value = get_new_theta(theta_base_value, theta_base_value_old, HORARIO_BASE, ANTI_HORARIO_BASE, CONFIG_GPIO_MOTOR_BASE_DIRECAO);
                 theta_base_value_old = theta_base_value_new;
@@ -201,11 +199,9 @@ static void task_motor_base(void *arg)
 
             if (theta_base_value > 0)
             {
-                ESP_LOGI(TAG_MOTOR_BASE, "BAATATA");
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
                 init_move_base(theta_base_value);
             } else {
-                ESP_LOGI(TAG_MOTOR_BASE, "ARROZ");
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
             }
 

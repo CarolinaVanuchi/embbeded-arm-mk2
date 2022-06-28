@@ -147,6 +147,10 @@ static void task_motor_left(void *arg)
                 pwm_left(FREQUENCY_MIN_LEFT);
                 ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT);
             }
+
+            if (end_sensor_left_check == 1) {
+                 ESP_LOGI(TAG_MOTOR_LEFT, "SENSOR LEFRT");
+            }
             
             
         }
