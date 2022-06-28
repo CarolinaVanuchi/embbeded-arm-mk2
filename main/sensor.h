@@ -81,7 +81,7 @@ static void task_sensor(void *arg)
         if (xQueueReceive(gpio_end_motor_esquerdo, &gpio_sensor_left, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 2...");
-            end_sensor_left_check = 1;
+            end_sensor_left_check = true;
         }
 
         if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_right, 10))

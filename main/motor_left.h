@@ -13,8 +13,8 @@
 
 #define HORARIO_LEFT (0)
 #define ANTI_HORARIO_LEFT (1)
-#define FREQUENCY_MAX_LEFT (200)
-#define FREQUENCY_MIN_LEFT (80)
+#define FREQUENCY_MAX_LEFT (250)
+#define FREQUENCY_MIN_LEFT (100)
 #define RESOLUCAO_LEFT (30)
 
 #define ENABLE_LEFT (0)
@@ -22,20 +22,20 @@
 
 #define LEDC_TIMER_LEFT LEDC_TIMER_1
 #define LEDC_MODE_LEFT LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT) 
+#define LEDC_OUTPUT_IO_LEFT (CONFIG_GPIO_MOTOR_LEFT)
 #define LEDC_CHANNEL_LEFT LEDC_CHANNEL_1
-#define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT 
-#define LEDC_DUTY_LEFT (4095) 
+#define LEDC_DUTY_RES_LEFT LEDC_TIMER_13_BIT
+#define LEDC_DUTY_LEFT (4095)
 
 #define TIMER_GROUP_LEFT (TIMER_GROUP_1)
-#define TIMER_LEFT (TIMER_1)
 
+#define TIMER_LEFT (TIMER_1)
 
 static const char *TAG_MOTOR_LEFT = "MOTOR LEFT";
 wave_t *wave_g_left = NULL;
 
 static xQueueHandle theta_left = NULL;
-uint8_t end_sensor_left_check = 0;
+bool end_sensor_left_check = false;
 double theta_2_send = 0;
 
 void init_motor_left(void)
@@ -113,17 +113,17 @@ void init_timer_left(void)
 
 void init_move_left(double theta_left_v)
 {
-    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 8, 1), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 4, 1), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
     timer_start(TIMER_GROUP_LEFT, TIMER_LEFT);
 }
-
 
 static void task_motor_left(void *arg)
 {
 
     init_motor_left();
-   
+
     double theta_left_value;
     double theta_left_value_new;
     double theta_left_value_old = 0;
@@ -136,9 +136,9 @@ static void task_motor_left(void *arg)
     {
         if (xQueueReceive(theta_left, &theta_left_value, 10))
         {
-            ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
+            ESP_LOGI(TAG_MOTOR_LEFT, "A");
 
-             if (!start_now_left)
+            if (!start_now_left)
                 start_run_left = true;
 
             if (start_now_left)
@@ -147,16 +147,62 @@ static void task_motor_left(void *arg)
                 pwm_left(FREQUENCY_MIN_LEFT);
                 ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT);
             }
-
-            if (end_sensor_left_check == 1) {
-                 ESP_LOGI(TAG_MOTOR_LEFT, "SENSOR LEFRT");
-            }
-            
-            
         }
 
-       
-       esp_task_wdt_reset();
+        if (end_sensor_left_check && !start_run_left)
+        {
+            ESP_LOGI(TAG_MOTOR_LEFT, "B");
+            start_now_left = false;
+            end_sensor_left_check = false;
+            ledc_stop(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, 0);
+
+            start_run_left = true;
+
+            gpio_reset_pin(CONFIG_GPIO_MOTOR_LEFT);
+            gpio_set_direction(CONFIG_GPIO_MOTOR_LEFT, GPIO_MODE_OUTPUT);
+            gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_DIRECAO, HORARIO_LEFT);
+
+            init_timer_left();
+        }
+
+        if (start_run_left)
+        {
+            ESP_LOGI(TAG_MOTOR_LEFT, "C");
+            if (not_first_left)
+            {
+                ESP_LOGI(TAG_MOTOR_LEFT, "D");
+                theta_left_value_new = theta_left_value;
+                theta_left_value = get_new_theta(theta_left_value, theta_left_value_old, HORARIO_LEFT, ANTI_HORARIO_LEFT, CONFIG_GPIO_MOTOR_LEFT_DIRECAO);
+                theta_left_value_old = theta_left_value_new;
+            }
+
+            not_first_left = true;
+
+            if (wave_g_left != NULL)
+            {
+                ESP_LOGI(TAG_MOTOR_LEFT, "E");
+                waveDelete(wave_g_left);
+                wave_g_left = NULL;
+            }
+
+            if (theta_left_value > 0)
+            {
+                ESP_LOGI(TAG_MOTOR_LEFT, "NOVO THETA LEFT: %f", theta_left_value);
+                ESP_LOGI(TAG_MOTOR_LEFT, "OLD THETA LEFT: %f", theta_left_value_old);
+
+                gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, ENABLE_LEFT);
+                init_move_left(theta_left_value);
+            }
+            else
+            {
+                ESP_LOGI(TAG_MOTOR_LEFT, "F");
+                gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
+            }
+
+            start_run_left = false;
+        }
+
+        esp_task_wdt_reset();
     }
 }
 
