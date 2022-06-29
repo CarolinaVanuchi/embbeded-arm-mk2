@@ -87,8 +87,7 @@ static void task_sensor(void *arg)
         if (xQueueReceive(gpio_end_motor_direito, &gpio_sensor_right, 10))
         {
             ESP_LOGI("ISR", "Fim de curso motor 3...");
-            gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_DIRECAO, HORARIO_RIGHT);
-            end_sensor_right_check = 1;
+            end_sensor_right_check = true;
         }
 
         esp_task_wdt_reset();

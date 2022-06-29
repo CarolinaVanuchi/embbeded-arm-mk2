@@ -41,7 +41,7 @@ void take_json(char *json_values)
             //     ESP_LOGI(TAG_JSON, "intervalo de theta para base nao aceito");
 
             xQueueSend(theta_left, (void *)&theta2, 1000);
-            // xQueueSend(theta_right, (void *)&theta3, 1000);
+            xQueueSend(theta_right, (void *)&theta3, 1000);
         }
         else
         {
