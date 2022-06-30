@@ -13,8 +13,9 @@
 
 #define HORARIO_LEFT (0)
 #define ANTI_HORARIO_LEFT (1)
-#define FREQUENCY_MAX_LEFT (250)
-#define FREQUENCY_MIN_LEFT (100)
+#define FREQUENCY_MAX_LEFT (500)
+#define FREQUENCY_MIN_LEFT (300)
+#define FREQUENCY_LEFT (100)
 #define RESOLUCAO_LEFT (30)
 
 #define ENABLE_LEFT (0)
@@ -113,7 +114,7 @@ void init_timer_left(void)
 
 void init_move_left(double theta_left_v)
 {
-    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 4, 1), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
 
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
     timer_start(TIMER_GROUP_LEFT, TIMER_LEFT);
@@ -132,6 +133,8 @@ static void task_motor_left(void *arg)
     bool start_run_left = false;
     bool not_first_left = false;
 
+    bool check_extra = false;
+
     while (1)
     {
         if (xQueueReceive(theta_left, &theta_left_value, 10))
@@ -144,14 +147,15 @@ static void task_motor_left(void *arg)
             if (start_now_left)
             {
                 theta_left_value_old = theta_left_value;
-                pwm_left(FREQUENCY_MIN_LEFT);
+                pwm_left(FREQUENCY_LEFT);
                 ledc_set_duty(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, LEDC_DUTY_LEFT);
             }
         }
 
-        if (end_sensor_left_check && !start_run_left)
+        if (end_sensor_left_check && !start_run_left && !check_extra)
         {
             ESP_LOGI(TAG_MOTOR_LEFT, "B");
+            check_extra = true;
             start_now_left = false;
             end_sensor_left_check = false;
             ledc_stop(LEDC_MODE_LEFT, LEDC_CHANNEL_LEFT, 0);

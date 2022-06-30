@@ -112,7 +112,7 @@ void init_timer_right(void)
 
 void init_move_right(double theta_right_v)
 {
-    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 4, 1), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 4, 1, 1), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
 
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
     timer_start(TIMER_GROUP_RIGHT, TIMER_RIGHT);
@@ -130,6 +130,7 @@ static void task_motor_right(void *arg)
     bool start_now_right = true;
     bool start_run_right = false;
     bool not_first_right = false;
+    bool check_extra_right = false;
 
     while (1)
     {
@@ -148,9 +149,10 @@ static void task_motor_right(void *arg)
             }
         }
 
-        if (end_sensor_right_check && !start_run_right)
+        if (end_sensor_right_check && !start_run_right && !check_extra_right)
         {
             ESP_LOGI(TAG_MOTOR_RIGHT, "B");
+            check_extra_right = true;
             start_now_right = false;
             end_sensor_right_check = false;
             ledc_stop(LEDC_MODE_RIGHT, LEDC_CHANNEL_RIGHT, 0);

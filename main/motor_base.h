@@ -125,7 +125,7 @@ void init_timer_base(void)
 
 void init_move_base(double theta_base)
 {
-    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -146,7 +146,8 @@ static void task_motor_base(void *arg)
 
     while (1)
     {
-
+        if (gpio_get_level(CONFIG_GPIO_END_BASE) == 0)
+            ESP_LOGI(TAG_MOTOR_BASE, "teste");
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
