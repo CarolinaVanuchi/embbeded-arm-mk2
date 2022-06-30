@@ -15,6 +15,7 @@
 #define ANTI_HORARIO_RIGHT (1)
 #define FREQUENCY_MAX_RIGHT (250)
 #define FREQUENCY_MIN_RIGHT (100)
+#define FREQUENCY_RIGHT (100)
 #define RESOLUCAO_RIGHT (30)
 
 #define ENABLE_RIGHT (0)
@@ -112,7 +113,7 @@ void init_timer_right(void)
 
 void init_move_right(double theta_right_v)
 {
-    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 4, 1, 1), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.50, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
 
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
     timer_start(TIMER_GROUP_RIGHT, TIMER_RIGHT);
@@ -144,7 +145,7 @@ static void task_motor_right(void *arg)
             if (start_now_right)
             {
                 theta_right_value_old = theta_right_value;
-                pwm_right(FREQUENCY_MIN_RIGHT);
+                pwm_right(FREQUENCY_RIGHT);
                 ledc_set_duty(LEDC_MODE_RIGHT, LEDC_CHANNEL_RIGHT, LEDC_DUTY_RIGHT);
             }
         }
