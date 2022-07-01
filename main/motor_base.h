@@ -22,7 +22,7 @@
 #define DISABLE_BASE (1)
 #define FREQUENCY_MAX_BASE (200)
 #define FREQUENCY_MIN_BASE (80)
-#define RESOLUCAO (30)
+#define RESOLUCAO (5)
 
 #define TIMER_GROUP_BASE (TIMER_GROUP_1)
 #define TIMER_BASE (TIMER_0)
@@ -125,7 +125,8 @@ void init_timer_base(void)
 
 void init_move_base(double theta_base)
 {
-    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    ESP_LOGI("BASE", "%i", wave_g->points->size);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -139,15 +140,17 @@ static void task_motor_base(void *arg)
     double theta_base_value_new;
     double theta_base_value_old = 0;
 
-    bool start_now  = true;
-    bool start_run  = false;
-    bool not_first  = false;
+    bool start_now = true;
+    bool start_run = false;
+    bool not_first = false;
     bool check_base = false;
 
     while (1)
     {
-        if (gpio_get_level(CONFIG_GPIO_END_BASE) == 0)
-            ESP_LOGI(TAG_MOTOR_BASE, "teste");
+
+        if (CONFIG_GPIO_END_BASE == 1)
+            ESP_LOGI(TAG_MOTOR_BASE, "TESTE");
+
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
@@ -200,7 +203,9 @@ static void task_motor_base(void *arg)
             {
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, ENABLE_BASE);
                 init_move_base(theta_base_value);
-            } else {
+            }
+            else
+            {
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
             }
 

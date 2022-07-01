@@ -16,7 +16,7 @@
 #define FREQUENCY_MAX_LEFT (250)
 #define FREQUENCY_MIN_LEFT (100)
 #define FREQUENCY_LEFT (100)
-#define RESOLUCAO_LEFT (30)
+#define RESOLUCAO_LEFT (5)
 
 #define ENABLE_LEFT (0)
 #define DISABLE_LEFT (1)
@@ -114,8 +114,8 @@ void init_timer_left(void)
 
 void init_move_left(double theta_left_v)
 {
-    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
-
+    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    ESP_LOGI("LEFT", "%i" ,wave_g_left->points->size);
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
     timer_start(TIMER_GROUP_LEFT, TIMER_LEFT);
 }
@@ -139,7 +139,7 @@ static void task_motor_left(void *arg)
     {
         if (xQueueReceive(theta_left, &theta_left_value, 10))
         {
-            ESP_LOGI(TAG_MOTOR_LEFT, "A");
+            ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
 
             if (!start_now_left)
                 start_run_left = true;
@@ -154,7 +154,6 @@ static void task_motor_left(void *arg)
 
         if (end_sensor_left_check && !start_run_left && !check_extra)
         {
-            ESP_LOGI(TAG_MOTOR_LEFT, "B");
             check_extra = true;
             start_now_left = false;
             end_sensor_left_check = false;
@@ -171,10 +170,8 @@ static void task_motor_left(void *arg)
 
         if (start_run_left)
         {
-            ESP_LOGI(TAG_MOTOR_LEFT, "C");
             if (not_first_left)
             {
-                ESP_LOGI(TAG_MOTOR_LEFT, "D");
                 theta_left_value_new = theta_left_value;
                 theta_left_value = get_new_theta(theta_left_value, theta_left_value_old, HORARIO_LEFT, ANTI_HORARIO_LEFT, CONFIG_GPIO_MOTOR_LEFT_DIRECAO);
                 theta_left_value_old = theta_left_value_new;
@@ -184,7 +181,6 @@ static void task_motor_left(void *arg)
 
             if (wave_g_left != NULL)
             {
-                ESP_LOGI(TAG_MOTOR_LEFT, "E");
                 waveDelete(wave_g_left);
                 wave_g_left = NULL;
             }
@@ -199,7 +195,6 @@ static void task_motor_left(void *arg)
             }
             else
             {
-                ESP_LOGI(TAG_MOTOR_LEFT, "F");
                 gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
             }
 

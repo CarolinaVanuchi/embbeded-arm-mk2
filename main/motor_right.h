@@ -16,7 +16,7 @@
 #define FREQUENCY_MAX_RIGHT (250)
 #define FREQUENCY_MIN_RIGHT (100)
 #define FREQUENCY_RIGHT (100)
-#define RESOLUCAO_RIGHT (30)
+#define RESOLUCAO_RIGHT (5)
 
 #define ENABLE_RIGHT (0)
 #define DISABLE_RIGHT (1)
@@ -113,8 +113,8 @@ void init_timer_right(void)
 
 void init_move_right(double theta_right_v)
 {
-    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.50, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
-
+    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    ESP_LOGI("RIGHT", "%i", wave_g_right->points->size);
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
     timer_start(TIMER_GROUP_RIGHT, TIMER_RIGHT);
 }
@@ -137,8 +137,7 @@ static void task_motor_right(void *arg)
     {
         if (xQueueReceive(theta_right, &theta_right_value, 10))
         {
-            ESP_LOGI(TAG_MOTOR_RIGHT, "A");
-
+            ESP_LOGI(TAG_MOTOR_RIGHT, "%lf...", theta_right_value);
             if (!start_now_right)
                 start_run_right = true;
 
@@ -152,7 +151,6 @@ static void task_motor_right(void *arg)
 
         if (end_sensor_right_check && !start_run_right && !check_extra_right)
         {
-            ESP_LOGI(TAG_MOTOR_RIGHT, "B");
             check_extra_right = true;
             start_now_right = false;
             end_sensor_right_check = false;
@@ -169,10 +167,8 @@ static void task_motor_right(void *arg)
 
         if (start_run_right)
         {
-            ESP_LOGI(TAG_MOTOR_RIGHT, "C");
             if (not_first_right)
             {
-                ESP_LOGI(TAG_MOTOR_RIGHT, "D");
                 theta_right_value_new = theta_right_value;
                 theta_right_value = get_new_theta(theta_right_value, theta_right_value_old, HORARIO_RIGHT, ANTI_HORARIO_RIGHT, CONFIG_GPIO_MOTOR_RIGHT_DIRECAO);
                 theta_right_value_old = theta_right_value_new;
@@ -182,7 +178,6 @@ static void task_motor_right(void *arg)
 
             if (wave_g_right != NULL)
             {
-                ESP_LOGI(TAG_MOTOR_RIGHT, "E");
                 waveDelete(wave_g_right);
                 wave_g_right = NULL;
             }
@@ -197,7 +192,6 @@ static void task_motor_right(void *arg)
             }
             else
             {
-                ESP_LOGI(TAG_MOTOR_RIGHT, "F");
                 gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_ENABLE, DISABLE_RIGHT);
             }
 
