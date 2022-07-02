@@ -13,10 +13,10 @@
 
 #define HORARIO_LEFT (0)
 #define ANTI_HORARIO_LEFT (1)
-#define FREQUENCY_MAX_LEFT (250)
+#define FREQUENCY_MAX_LEFT (150)
 #define FREQUENCY_MIN_LEFT (100)
 #define FREQUENCY_LEFT (100)
-#define RESOLUCAO_LEFT (5)
+#define RESOLUCAO_LEFT (10)
 
 #define ENABLE_LEFT (0)
 #define DISABLE_LEFT (1)
@@ -115,6 +115,7 @@ void init_timer_left(void)
 void init_move_left(double theta_left_v)
 {
     wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    // wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
     ESP_LOGI("LEFT", "%i" ,wave_g_left->points->size);
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
     timer_start(TIMER_GROUP_LEFT, TIMER_LEFT);

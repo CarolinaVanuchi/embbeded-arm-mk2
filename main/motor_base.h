@@ -20,9 +20,10 @@
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
-#define FREQUENCY_MAX_BASE (200)
-#define FREQUENCY_MIN_BASE (80)
-#define RESOLUCAO (5)
+#define FREQUENCY_MAX_BASE (100)
+#define FREQUENCY_MIN_BASE (50)
+#define FREQUENCY_BASE (50)
+#define RESOLUCAO (10)
 
 #define TIMER_GROUP_BASE (TIMER_GROUP_1)
 #define TIMER_BASE (TIMER_0)
@@ -126,6 +127,7 @@ void init_timer_base(void)
 void init_move_base(double theta_base)
 {
     wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
     ESP_LOGI("BASE", "%i", wave_g->points->size);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
@@ -161,7 +163,7 @@ static void task_motor_base(void *arg)
             if (start_now)
             {
                 theta_base_value_old = theta_base_value;
-                pwm_base(FREQUENCY_MIN_BASE);
+                pwm_base(FREQUENCY_BASE);
                 ledc_set_duty(LEDC_MODE_BASE, LEDC_CHANNEL_BASE, LEDC_DUTY_BASE);
             }
         }
