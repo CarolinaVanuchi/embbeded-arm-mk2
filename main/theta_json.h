@@ -8,6 +8,7 @@
 #include "motor_base.h"
 #include "motor_left.h"
 #include "motor_right.h"
+#include "led.h"
 
 static const char *TAG_JSON = "JSON";
 
@@ -31,16 +32,15 @@ void take_json(char *json_values)
 
         if (try_theta1 == 1 && try_theta2 == 1 && try_theta3 == 1)
         {
+            ESP_LOGI(TAG_JSON, "Tem valores");
+            on_led();
             double theta1 = cJSON_GetObjectItem(root, "theta1")->valuedouble;
             double theta2 = cJSON_GetObjectItem(root, "theta2")->valuedouble;
             double theta3 = cJSON_GetObjectItem(root, "theta3")->valuedouble;
 
-            // if ((theta1 >= 0.0) && (theta1 <= 320.0))
-            // xQueueSend(theta_base, (void *)&theta1, 1000);
-            // else
-            //     ESP_LOGI(TAG_JSON, "intervalo de theta para base nao aceito");
-
-            // xQueueSend(theta_left, (void *)&theta2, 1000);
+            open_final_actuator();
+            xQueueSend(theta_base, (void *)&theta1, 1000);
+            xQueueSend(theta_left, (void *)&theta2, 1000);
             xQueueSend(theta_right, (void *)&theta3, 1000);
         }
         else

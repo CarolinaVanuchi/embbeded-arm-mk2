@@ -23,15 +23,14 @@ void app_main(void)
     init_sensor();
 
     set_config_led();
-    on_led();
 
     init_final_actuator();
    
-
     xTaskCreate(task_motor_base, "task_base", 1024 * 20, NULL, configMAX_PRIORITIES - 3, NULL);
     xTaskCreate(task_motor_left, "task_left", 1024 * 20, NULL, configMAX_PRIORITIES - 3, NULL);
     xTaskCreate(task_motor_right, "task_right", 1024 * 20, NULL, configMAX_PRIORITIES - 3, NULL);
 
-    xTaskCreate(task_sensor, "task_sensor", 1024 * 2, NULL, configMAX_PRIORITIES, NULL);
-    xTaskCreate(rx_task, "uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
+    xTaskCreate(task_sensor, "task_sensor", 1024 * 5, NULL, configMAX_PRIORITIES, NULL);
+    xTaskCreate(rx_task, "uart_rx_task", 1024 * 5, NULL, configMAX_PRIORITIES - 2, NULL);
+    xTaskCreate(close_final_actuator, "task_garra", 1024 * 5, NULL, configMAX_PRIORITIES - 4, NULL);
 }

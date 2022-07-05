@@ -38,6 +38,10 @@ static xQueueHandle theta_right = NULL;
 bool end_sensor_right_check = false;
 double theta_3_send = 0;
 
+int total_points_right = 0;
+int current_point_right = 0;
+bool running_right = false;
+
 void init_motor_right(void)
 {
     gpio_reset_pin(CONFIG_GPIO_MOTOR_RIGHT_ENABLE);
@@ -83,7 +87,13 @@ static bool IRAM_ATTR on_timer_alarm_cb_right(void *user_data)
 {
     if (wave_g_right != NULL)
     {
+        current_point_right = wave_g_right->index;
         gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT, waveRead(wave_g_right));
+         if ((current_point_right >= total_points_right) && (running_right))
+        {
+            running_right = false;
+            finish_right = true;
+        }
     }
 
     return pdFALSE;
@@ -113,8 +123,9 @@ void init_timer_right(void)
 
 void init_move_right(double theta_right_v)
 {
-    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
-    // wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    // wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    total_points_right = wave_g_right->points->size;
     ESP_LOGI(TAG_MOTOR_RIGHT, "%i", wave_g_right->points->size);
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
     timer_start(TIMER_GROUP_RIGHT, TIMER_RIGHT);
@@ -139,6 +150,8 @@ static void task_motor_right(void *arg)
         if (xQueueReceive(theta_right, &theta_right_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_RIGHT, "%lf...", theta_right_value);
+            running_right = true;
+
             if (!start_now_right)
                 start_run_right = true;
 

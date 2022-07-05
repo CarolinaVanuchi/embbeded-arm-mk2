@@ -39,6 +39,10 @@ static xQueueHandle theta_left = NULL;
 bool end_sensor_left_check = false;
 double theta_2_send = 0;
 
+int total_points_left = 0;
+int current_point_left = 0;
+bool running_left = false;
+
 void init_motor_left(void)
 {
     gpio_reset_pin(CONFIG_GPIO_MOTOR_LEFT_ENABLE);
@@ -84,7 +88,13 @@ static bool IRAM_ATTR on_timer_alarm_cb_left(void *user_data)
 {
     if (wave_g_left != NULL)
     {
+        current_point_left = wave_g_left->index;
         gpio_set_level(CONFIG_GPIO_MOTOR_LEFT, waveRead(wave_g_left));
+        if ((current_point_left >= total_points_left) && (running_left))
+        {
+            running_left = false;
+            finish_left = true;
+        }
     }
 
     return pdFALSE;
@@ -114,9 +124,10 @@ void init_timer_left(void)
 
 void init_move_left(double theta_left_v)
 {
-    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
-    // wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
-    ESP_LOGI(TAG_MOTOR_LEFT, "%i" ,wave_g_left->points->size);
+    // wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    total_points_left = wave_g_left->points->size;
+    ESP_LOGI(TAG_MOTOR_LEFT, "%i", wave_g_left->points->size);
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
     timer_start(TIMER_GROUP_LEFT, TIMER_LEFT);
 }
@@ -141,7 +152,7 @@ static void task_motor_left(void *arg)
         if (xQueueReceive(theta_left, &theta_left_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_LEFT, "%lf...", theta_left_value);
-
+            running_left = true;
             if (!start_now_left)
                 start_run_left = true;
 

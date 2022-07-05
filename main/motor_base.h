@@ -14,14 +14,15 @@
 #include "driver/timer.h"
 #include "generic_motor.h"
 #include "inttypes.h"
+#include "final_actuator.h"
 
 #define HORARIO_BASE (1)
 #define ANTI_HORARIO_BASE (0)
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
-#define FREQUENCY_MAX_BASE (250)
-#define FREQUENCY_MIN_BASE (220)
+#define FREQUENCY_MAX_BASE (200)
+#define FREQUENCY_MIN_BASE (180)
 #define FREQUENCY_BASE (200)
 #define RESOLUCAO (10)
 
@@ -40,8 +41,9 @@ static const char *TAG_MOTOR_BASE = "MOTOR BASE";
 static xQueueHandle theta_base = NULL;
 wave_t *wave_g = NULL;
 
-uint8_t end_sensor_base_check = 0;
-
+int total_points = 0;
+int current_point = 0;
+bool running_base = false;
 /**
  * @brief Inicializa os pinos dos sensores da base
  *
@@ -96,7 +98,13 @@ static bool IRAM_ATTR on_timer_alarm_cb(void *user_data)
 {
     if (wave_g != NULL)
     {
+        current_point = wave_g->index;
         gpio_set_level(CONFIG_GPIO_MOTOR_BASE, waveRead(wave_g));
+        if ((current_point >= total_points) && (running_base))
+        {
+            running_base = false;
+            finish_end = true;
+        }
     }
 
     return pdFALSE;
@@ -126,9 +134,10 @@ void init_timer_base(void)
 
 void init_move_base(double theta_base)
 {
-    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-    // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-    ESP_LOGI(TAG_MOTOR_BASE, "%i", wave_g->points->size);
+    // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    total_points = wave_g->points->size;
+    ESP_LOGI(TAG_MOTOR_BASE, "%i", total_points);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -153,6 +162,7 @@ static void task_motor_base(void *arg)
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
             ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
+            running_base = true;
 
             if (!start_now)
                 start_run = true;
