@@ -216,6 +216,7 @@ static void task_motor_base(void *arg)
             else
             {
                 gpio_set_level(CONFIG_GPIO_MOTOR_BASE_ENABLE, DISABLE_BASE);
+                finish_end = true;
             }
 
             start_run = false;

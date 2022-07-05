@@ -207,6 +207,7 @@ static void task_motor_right(void *arg)
             else
             {
                 gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_ENABLE, DISABLE_RIGHT);
+                finish_right = true;
             }
 
             start_run_right = false;

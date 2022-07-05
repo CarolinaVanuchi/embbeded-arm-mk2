@@ -208,6 +208,7 @@ static void task_motor_left(void *arg)
             else
             {
                 gpio_set_level(CONFIG_GPIO_MOTOR_LEFT_ENABLE, DISABLE_LEFT);
+                finish_left = true;
             }
 
             start_run_left = false;

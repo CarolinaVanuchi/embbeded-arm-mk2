@@ -51,6 +51,7 @@ void close_final_actuator()
         if (finish_end && finish_left && finish_right)
         {
             ESP_LOGI(TAG_GARRA, "CLOSE");
+            off_led();
             finish_end = false;
             finish_left = false;
             finish_right = false;
