@@ -11,8 +11,8 @@
 #include "generic_motor.h"
 #include "uart.h"
 
-#define HORARIO_RIGHT (0)
-#define ANTI_HORARIO_RIGHT (1)
+#define HORARIO_RIGHT (1)
+#define ANTI_HORARIO_RIGHT (0)
 #define FREQUENCY_MAX_RIGHT (150)
 #define FREQUENCY_MIN_RIGHT (100)
 #define FREQUENCY_RIGHT (100)
@@ -115,7 +115,7 @@ void init_move_right(double theta_right_v)
 {
     wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
     // wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
-    ESP_LOGI("RIGHT", "%i", wave_g_right->points->size);
+    ESP_LOGI(TAG_MOTOR_RIGHT, "%i", wave_g_right->points->size);
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
     timer_start(TIMER_GROUP_RIGHT, TIMER_RIGHT);
 }

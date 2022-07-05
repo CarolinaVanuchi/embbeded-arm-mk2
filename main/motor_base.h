@@ -20,9 +20,9 @@
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
-#define FREQUENCY_MAX_BASE (100)
-#define FREQUENCY_MIN_BASE (50)
-#define FREQUENCY_BASE (50)
+#define FREQUENCY_MAX_BASE (250)
+#define FREQUENCY_MIN_BASE (220)
+#define FREQUENCY_BASE (200)
 #define RESOLUCAO (10)
 
 #define TIMER_GROUP_BASE (TIMER_GROUP_1)
@@ -128,7 +128,7 @@ void init_move_base(double theta_base)
 {
     wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
     // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-    ESP_LOGI("BASE", "%i", wave_g->points->size);
+    ESP_LOGI(TAG_MOTOR_BASE, "%i", wave_g->points->size);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -149,9 +149,6 @@ static void task_motor_base(void *arg)
 
     while (1)
     {
-
-        if (CONFIG_GPIO_END_BASE == 1)
-            ESP_LOGI(TAG_MOTOR_BASE, "TESTE");
 
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {

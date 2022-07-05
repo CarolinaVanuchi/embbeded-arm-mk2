@@ -36,11 +36,11 @@ void take_json(char *json_values)
             double theta3 = cJSON_GetObjectItem(root, "theta3")->valuedouble;
 
             // if ((theta1 >= 0.0) && (theta1 <= 320.0))
-            xQueueSend(theta_base, (void *)&theta1, 1000);
+            // xQueueSend(theta_base, (void *)&theta1, 1000);
             // else
             //     ESP_LOGI(TAG_JSON, "intervalo de theta para base nao aceito");
 
-            xQueueSend(theta_left, (void *)&theta2, 1000);
+            // xQueueSend(theta_left, (void *)&theta2, 1000);
             xQueueSend(theta_right, (void *)&theta3, 1000);
         }
         else
