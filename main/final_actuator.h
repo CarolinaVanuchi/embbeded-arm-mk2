@@ -40,7 +40,6 @@ void init_final_actuator()
 
 void open_final_actuator()
 {
-    ESP_LOGI(TAG_GARRA, "OPEN");
     mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, convert_servo_angle_to_duty_us(180));
 }
 
@@ -50,7 +49,6 @@ void close_final_actuator()
     {
         if (finish_end && finish_left && finish_right)
         {
-            ESP_LOGI(TAG_GARRA, "CLOSE");
             off_led();
             finish_end = false;
             finish_left = false;

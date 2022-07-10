@@ -4,6 +4,11 @@
 double get_new_theta(double get_new_theta, double old_theta, uint8_t horario, uint8_t anti_horario, gpio_num_t dir_port)
 {
     double aux_left = get_new_theta - old_theta;
+    
+    ESP_LOGI("EX", "%f", aux_left);
+    ESP_LOGI("EX1", "%f", get_new_theta);
+    ESP_LOGI("EX2", "%f", old_theta);
+
     if (aux_left > 0)
     {
         gpio_set_level(dir_port, horario);

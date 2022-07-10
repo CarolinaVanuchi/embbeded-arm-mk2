@@ -11,8 +11,8 @@
 #include "generic_motor.h"
 #include "uart.h"
 
-#define HORARIO_RIGHT (1)
-#define ANTI_HORARIO_RIGHT (0)
+#define HORARIO_RIGHT (0)
+#define ANTI_HORARIO_RIGHT (1)
 #define FREQUENCY_MAX_RIGHT (150)
 #define FREQUENCY_MIN_RIGHT (100)
 #define FREQUENCY_RIGHT (100)
@@ -123,8 +123,8 @@ void init_timer_right(void)
 
 void init_move_right(double theta_right_v)
 {
-    // wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
-    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 2.5, 4.5, 6), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
+    // wave_g_right = waveGenStepMotorSineAcceleration(get_step(theta_right_v, 1, 4.5, 4), FREQUENCY_MIN_RIGHT, FREQUENCY_MAX_RIGHT, RESOLUCAO_RIGHT);
     total_points_right = wave_g_right->points->size;
     ESP_LOGI(TAG_MOTOR_RIGHT, "%i", wave_g_right->points->size);
     timer_set_alarm_value(TIMER_GROUP_RIGHT, TIMER_RIGHT, (uint64_t)ceil(wave_g_right->period * (1000000ULL)));
@@ -138,7 +138,7 @@ static void task_motor_right(void *arg)
 
     double theta_right_value;
     double theta_right_value_new;
-    double theta_right_value_old = 0;
+    double theta_right_value_old_ = 0;
 
     bool start_now_right = true;
     bool start_run_right = false;
@@ -157,7 +157,7 @@ static void task_motor_right(void *arg)
 
             if (start_now_right)
             {
-                theta_right_value_old = theta_right_value;
+                theta_right_value_old_ = theta_right_value;
                 pwm_right(FREQUENCY_RIGHT);
                 ledc_set_duty(LEDC_MODE_RIGHT, LEDC_CHANNEL_RIGHT, LEDC_DUTY_RIGHT);
             }
@@ -184,8 +184,8 @@ static void task_motor_right(void *arg)
             if (not_first_right)
             {
                 theta_right_value_new = theta_right_value;
-                theta_right_value = get_new_theta(theta_right_value, theta_right_value_old, HORARIO_RIGHT, ANTI_HORARIO_RIGHT, CONFIG_GPIO_MOTOR_RIGHT_DIRECAO);
-                theta_right_value_old = theta_right_value_new;
+                theta_right_value = get_new_theta(theta_right_value, theta_right_value_old_, HORARIO_RIGHT, ANTI_HORARIO_RIGHT, CONFIG_GPIO_MOTOR_RIGHT_DIRECAO);
+                theta_right_value_old_ = theta_right_value_new;
             }
 
             not_first_right = true;
@@ -199,7 +199,7 @@ static void task_motor_right(void *arg)
             if (theta_right_value > 0)
             {
                 ESP_LOGI(TAG_MOTOR_RIGHT, "NOVO THETA RIGHT: %f", theta_right_value);
-                ESP_LOGI(TAG_MOTOR_RIGHT, "OLD THETA RIGHT: %f", theta_right_value_old);
+                ESP_LOGI(TAG_MOTOR_RIGHT, "OLD THETA RIGHT: %f", theta_right_value_old_);
 
                 gpio_set_level(CONFIG_GPIO_MOTOR_RIGHT_ENABLE, ENABLE_RIGHT);
                 init_move_right(theta_right_value);

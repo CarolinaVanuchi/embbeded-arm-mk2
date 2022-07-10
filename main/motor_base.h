@@ -16,8 +16,8 @@
 #include "inttypes.h"
 #include "final_actuator.h"
 
-#define HORARIO_BASE (1)
-#define ANTI_HORARIO_BASE (0)
+#define HORARIO_BASE (0)
+#define ANTI_HORARIO_BASE (1)
 
 #define ENABLE_BASE (0)
 #define DISABLE_BASE (1)
@@ -134,10 +134,9 @@ void init_timer_base(void)
 
 void init_move_base(double theta_base)
 {
-    // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
-    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 5.5, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
+    // wave_g = waveGenStepMotorSineAcceleration(get_step(theta_base, 8, 1, 1), FREQUENCY_MIN_BASE, FREQUENCY_MAX_BASE, RESOLUCAO);
     total_points = wave_g->points->size;
-    ESP_LOGI(TAG_MOTOR_BASE, "%i", total_points);
     timer_set_alarm_value(TIMER_GROUP_BASE, TIMER_BASE, (uint64_t)ceil(wave_g->period * (1000000ULL)));
     timer_start(TIMER_GROUP_BASE, TIMER_BASE);
 }
@@ -161,8 +160,8 @@ static void task_motor_base(void *arg)
 
         if (xQueueReceive(theta_base, &theta_base_value, 10))
         {
-            ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
             running_base = true;
+            ESP_LOGI(TAG_MOTOR_BASE, "%lf...", theta_base_value);
 
             if (!start_now)
                 start_run = true;

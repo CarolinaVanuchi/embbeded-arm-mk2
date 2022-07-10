@@ -124,8 +124,8 @@ void init_timer_left(void)
 
 void init_move_left(double theta_left_v)
 {
-    // wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
-    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 2.5, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
+    // wave_g_left = waveGenStepMotorSineAcceleration(get_step(theta_left_v, 1, 4.50, 4), FREQUENCY_MIN_LEFT, FREQUENCY_MAX_LEFT, RESOLUCAO_LEFT);
     total_points_left = wave_g_left->points->size;
     ESP_LOGI(TAG_MOTOR_LEFT, "%i", wave_g_left->points->size);
     timer_set_alarm_value(TIMER_GROUP_LEFT, TIMER_LEFT, (uint64_t)ceil(wave_g_left->period * (1000000ULL)));
